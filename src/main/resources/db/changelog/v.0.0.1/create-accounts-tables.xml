@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-accounts-base-table" author="VurtsGD">
+        <createTable tableName="accounts_base">
+            <column name="account_id" type="BIGSERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_base" nullable="false"/>
+            </column>
+            <column name="account_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="NUMERIC(14,2)" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-accounts-bank-table" author="VurtsGD">
+        <createTable tableName="accounts_bank">
+            <column name="account_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_bank" nullable="false"
+                             foreignKeyName="fk_accounts_bank_base" referencedTableName="accounts_base"
+                             referencedColumnNames="account_id"/>
+            </column>
+            <column name="bank_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_number" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_accounts_bank_account_number"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-accounts-card-table" author="VurtsGD">
+        <createTable tableName="accounts_card">
+            <column name="account_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_card" nullable="false"
+                             foreignKeyName="fk_accounts_card_base" referencedTableName="accounts_base"
+                             referencedColumnNames="account_id"/>
+            </column>
+            <column name="bank_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_number" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_accounts_card_account_number"/>
+            </column>
+            <column name="card_type" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="credit_limit" type="NUMERIC(14,2)"/>
+        </createTable>
+
+        <sql>
+            ALTER TABLE accounts_card
+            ADD CONSTRAINT card_type_valid
+            CHECK (card_type IN ('DEBIT', 'CREDIT'));
+        </sql>
+    </changeSet>
+
+    <changeSet id="create-accounts-cash-table" author="VurtsGD">
+        <createTable tableName="accounts_cash">
+            <column name="account_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_cash" nullable="false"
+                             foreignKeyName="fk_accounts_cash_base" referencedTableName="accounts_base"
+                             referencedColumnNames="account_id"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

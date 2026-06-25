@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: Finance_Tracker
+
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB:finance}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:password}
+
+  liquibase:
+    change-log: db/changelog/db.changelog-master.xml
