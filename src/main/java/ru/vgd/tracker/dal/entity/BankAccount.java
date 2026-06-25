@@ -1,4 +1,4 @@
-package ru.vgd.tracker.model;
+package ru.vgd.tracker.dal.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;

@@ -1,4 +1,4 @@
-package ru.vgd.tracker.model;
+package ru.vgd.tracker.dal.entity;
 
 public enum CardType {
     DEBIT,

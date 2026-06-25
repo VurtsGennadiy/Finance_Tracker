@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-users-table" author="VurtsGD">
+        <comment>Создание таблицы пользователей</comment>
+        <createTable tableName="users">
+            <column name="user_id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_users" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_username"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_users_email"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-account-owners-table" author="VurtsGD">
+        <comment>Создание таблицы владельцев счетов</comment>
+        <createTable tableName="account_owners">
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="account_owners" columnNames="user_id,account_id"
+                       constraintName="pk_account_owners"/>
+
+        <addForeignKeyConstraint baseTableName="account_owners"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_account_owners_users"
+                                 referencedTableName="users"
+                                 referencedColumnNames="user_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="account_owners"
+                                 baseColumnNames="account_id"
+                                 constraintName="fk_account_owners_accounts"
+                                 referencedTableName="accounts_base"
+                                 referencedColumnNames="account_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <createIndex tableName="account_owners" indexName="idx_account_owners_user_id">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

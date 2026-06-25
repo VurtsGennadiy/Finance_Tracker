@@ -7,7 +7,7 @@
 
     <changeSet id="create-accounts-base-table" author="VurtsGD">
         <createTable tableName="accounts_base">
-            <column name="account_id" type="BIGSERIAL">
+            <column name="account_id" type="UUID">
                 <constraints primaryKey="true" primaryKeyName="pk_accounts_base" nullable="false"/>
             </column>
             <column name="account_type" type="VARCHAR(20)">
@@ -24,10 +24,8 @@
 
     <changeSet id="create-accounts-bank-table" author="VurtsGD">
         <createTable tableName="accounts_bank">
-            <column name="account_id" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="pk_accounts_bank" nullable="false"
-                             foreignKeyName="fk_accounts_bank_base" referencedTableName="accounts_base"
-                             referencedColumnNames="account_id"/>
+            <column name="account_id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_bank" nullable="false"/>
             </column>
             <column name="bank_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
@@ -36,14 +34,19 @@
                 <constraints nullable="false" unique="true" uniqueConstraintName="uq_accounts_bank_account_number"/>
             </column>
         </createTable>
+
+        <addForeignKeyConstraint baseTableName="accounts_bank"
+                                 baseColumnNames="account_id"
+                                 constraintName="fk_accounts_bank_base"
+                                 referencedTableName="accounts_base"
+                                 referencedColumnNames="account_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="create-accounts-card-table" author="VurtsGD">
         <createTable tableName="accounts_card">
-            <column name="account_id" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="pk_accounts_card" nullable="false"
-                             foreignKeyName="fk_accounts_card_base" referencedTableName="accounts_base"
-                             referencedColumnNames="account_id"/>
+            <column name="account_id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_card" nullable="false"/>
             </column>
             <column name="bank_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
@@ -57,6 +60,13 @@
             <column name="credit_limit" type="NUMERIC(14,2)"/>
         </createTable>
 
+        <addForeignKeyConstraint baseTableName="accounts_card"
+                                 baseColumnNames="account_id"
+                                 constraintName="fk_accounts_card_base"
+                                 referencedTableName="accounts_base"
+                                 referencedColumnNames="account_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
         <sql>
             ALTER TABLE accounts_card
             ADD CONSTRAINT card_type_valid
@@ -66,11 +76,16 @@
 
     <changeSet id="create-accounts-cash-table" author="VurtsGD">
         <createTable tableName="accounts_cash">
-            <column name="account_id" type="BIGINT">
-                <constraints primaryKey="true" primaryKeyName="pk_accounts_cash" nullable="false"
-                             foreignKeyName="fk_accounts_cash_base" referencedTableName="accounts_base"
-                             referencedColumnNames="account_id"/>
+            <column name="account_id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts_cash" nullable="false"/>
             </column>
         </createTable>
+
+        <addForeignKeyConstraint baseTableName="accounts_cash"
+                                 baseColumnNames="account_id"
+                                 constraintName="fk_accounts_cash_base"
+                                 referencedTableName="accounts_base"
+                                 referencedColumnNames="account_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
     </changeSet>
 </databaseChangeLog>

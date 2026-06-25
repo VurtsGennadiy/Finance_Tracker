@@ -4,12 +4,11 @@ import jakarta.persistence.EntityManager;
 import org.hibernate.SessionFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import ru.vgd.tracker.model.BankAccount;
-import ru.vgd.tracker.model.CardAccount;
-import ru.vgd.tracker.model.CardType;
-import ru.vgd.tracker.model.CashAccount;
+import ru.vgd.tracker.dal.entity.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @SpringBootApplication
 public class FinanceTrackerApplication {
@@ -18,6 +17,13 @@ public class FinanceTrackerApplication {
 
         SessionFactory sessionFactory = appContext.getBean(SessionFactory.class);
         EntityManager em = appContext.getBean(EntityManager.class);
+        var session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        User superuser = new User();
+        superuser.setUsername("superuser");
+        superuser.setEmail("superuser@email.ru");
+
 
         CashAccount cashAccount = new CashAccount();
         cashAccount.setName("Cash Account");
@@ -41,12 +47,19 @@ public class FinanceTrackerApplication {
         bankAccount.setBankName("VTB");
         bankAccount.setAccountNumber("1111222233334444");
 
-        var session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.persist(cashAccount);
+        Set<Account> accounts = new HashSet<>();
+        accounts.add(cashAccount);
+        accounts.add(debitCard);
+        accounts.add(creditCard);
+        accounts.add(bankAccount);
+        superuser.setAccounts(accounts);
+
+        session.persist(superuser);
+
+/*        session.persist(cashAccount);
         session.persist(debitCard);
         session.persist(creditCard);
-        session.persist(bankAccount);
+        session.persist(bankAccount);*/
         session.getTransaction().commit();
     }
 }
