@@ -6,6 +6,7 @@
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="create-accounts-base-table" author="VurtsGD">
+        <comment>Создание базовой таблицы для счетов</comment>
         <createTable tableName="accounts_base">
             <column name="account_id" type="UUID">
                 <constraints primaryKey="true" primaryKeyName="pk_accounts_base" nullable="false"/>
@@ -23,6 +24,7 @@
     </changeSet>
 
     <changeSet id="create-accounts-bank-table" author="VurtsGD">
+        <comment>Создание таблицы для банковских счетов</comment>
         <createTable tableName="accounts_bank">
             <column name="account_id" type="UUID">
                 <constraints primaryKey="true" primaryKeyName="pk_accounts_bank" nullable="false"/>
@@ -44,6 +46,7 @@
     </changeSet>
 
     <changeSet id="create-accounts-card-table" author="VurtsGD">
+        <comment>Создание таблицы для банковских карт</comment>
         <createTable tableName="accounts_card">
             <column name="account_id" type="UUID">
                 <constraints primaryKey="true" primaryKeyName="pk_accounts_card" nullable="false"/>
@@ -51,7 +54,7 @@
             <column name="bank_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="account_number" type="VARCHAR(100)">
+            <column name="card_number" type="VARCHAR(16)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="uq_accounts_card_account_number"/>
             </column>
             <column name="card_type" type="VARCHAR(10)">
@@ -75,6 +78,7 @@
     </changeSet>
 
     <changeSet id="create-accounts-cash-table" author="VurtsGD">
+        <comment>Создание таблицы для наличных счетов</comment>
         <createTable tableName="accounts_cash">
             <column name="account_id" type="UUID">
                 <constraints primaryKey="true" primaryKeyName="pk_accounts_cash" nullable="false"/>

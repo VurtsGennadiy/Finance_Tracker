@@ -30,8 +30,8 @@ public class CardAccount extends Account {
     @Column(name = "bank_name", nullable = false)
     private String bankName;
 
-    @Column(name = "account_number", nullable = false, unique = true)
-    private String accountNumber;
+    @Column(name = "card_number", nullable = false, unique = true)
+    private String cardNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "card_type", nullable = false)

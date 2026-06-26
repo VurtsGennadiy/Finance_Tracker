@@ -7,4 +7,5 @@
 
     <include relativeToChangelogFile="true" file="create-accounts-tables.xml"/>
     <include relativeToChangelogFile="true" file="create-users-and-owners-tables.xml"/>
+    <include relativeToChangelogFile="true" file="add-user-auth-fields.xml"/>
 </databaseChangeLog>
