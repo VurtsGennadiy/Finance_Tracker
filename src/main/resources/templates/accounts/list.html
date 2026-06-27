@@ -25,7 +25,6 @@
     <!-- Список счетов -->
     <div th:if="${#lists.isEmpty(accounts)}" class="text-center py-5">
         <p class="text-muted fs-5">У вас пока нет счетов</p>
-        <a th:href="@{/accounts/create}" class="btn btn-outline-primary">Создать первый счёт</a>
     </div>
 
     <div class="row g-3" th:unless="${#lists.isEmpty(accounts)}">

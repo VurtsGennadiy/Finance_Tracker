@@ -1,4 +1,4 @@
-package ru.vgd.tracker.dal.entity;
+package ru.vgd.tracker.dal.user;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.vgd.tracker.dal.account.entity.Account;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -45,11 +46,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<UserRole> roles = EnumSet.of(UserRole.USER);
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "account_owners",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "account_id")
-    )
+    @ManyToMany(mappedBy = "owners", fetch = FetchType.LAZY)
     private Set<Account> accounts = new HashSet<>();
 }

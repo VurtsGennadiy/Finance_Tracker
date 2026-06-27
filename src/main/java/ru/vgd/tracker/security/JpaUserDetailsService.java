@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.vgd.tracker.dal.entity.User;
-import ru.vgd.tracker.dal.repository.UserRepository;
+import ru.vgd.tracker.dal.user.User;
+import ru.vgd.tracker.dal.user.UserRepository;
 
 /**
  * Реализация {@link UserDetailsService} на основе JPA {@link UserRepository}.

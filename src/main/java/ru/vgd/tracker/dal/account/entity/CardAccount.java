@@ -1,4 +1,4 @@
-package ru.vgd.tracker.dal.entity;
+package ru.vgd.tracker.dal.account.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -30,7 +30,7 @@ public class CardAccount extends Account {
     @Column(name = "bank_name", nullable = false)
     private String bankName;
 
-    @Column(name = "card_number", nullable = false, unique = true)
+    @Column(name = "card_number")
     private String cardNumber;
 
     @Enumerated(EnumType.STRING)

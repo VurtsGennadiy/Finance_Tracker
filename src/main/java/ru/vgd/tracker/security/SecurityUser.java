@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ru.vgd.tracker.dal.entity.User;
+import ru.vgd.tracker.dal.user.User;
 
 import java.util.Collection;
 import java.util.UUID;

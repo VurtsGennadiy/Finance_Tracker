@@ -1,4 +1,4 @@
-package ru.vgd.tracker.dal.entity;
+package ru.vgd.tracker.dal.account.entity;
 
 import lombok.Getter;
 

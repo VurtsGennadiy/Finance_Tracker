@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.vgd.tracker.dal.entity.Account;
-import ru.vgd.tracker.dal.entity.CardType;
-import ru.vgd.tracker.dal.entity.User;
+import ru.vgd.tracker.dal.account.entity.Account;
+import ru.vgd.tracker.dal.account.entity.CardType;
+import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
@@ -56,17 +56,20 @@ public class AccountController {
      * Обрабатывает форму создания нового счёта
      */
     @PostMapping("/create")
-    public String createAccount(@Valid @ModelAttribute("request") CreateAccountRequest request,
-                                BindingResult bindingResult,
-                                Model model,
-                                RedirectAttributes redirectAttributes) {
+    public String createAccount(
+            @AuthenticationPrincipal SecurityUser principal,
+            @Valid @ModelAttribute("request") CreateAccountRequest request,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
         if (bindingResult.hasErrors()) {
             model.addAttribute("cardTypes", List.of(CardType.values()));
             return "accounts/create";
         }
 
         try {
-            User user = accountService.getFirstUser();
+            User user = principal.getUser();
             accountService.createAccount(request, user);
             redirectAttributes.addFlashAttribute("success", "Счёт «" + request.getName() + "» успешно создан!");
             return "redirect:/accounts";

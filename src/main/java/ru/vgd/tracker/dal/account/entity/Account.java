@@ -1,23 +1,13 @@
-package ru.vgd.tracker.dal.entity;
+package ru.vgd.tracker.dal.account.entity;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.vgd.tracker.dal.user.User;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -50,6 +40,15 @@ public abstract class Account {
     @EqualsAndHashCode.Include
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @ManyToMany(mappedBy = "accounts", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "account_owners",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private Set<User> owners = new HashSet<>();
+
+    @Column(name = "account_type", insertable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
 }

@@ -1,28 +1,26 @@
 package ru.vgd.tracker.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.vgd.tracker.dal.entity.Account;
-import ru.vgd.tracker.dal.entity.BankAccount;
-import ru.vgd.tracker.dal.entity.CardAccount;
-import ru.vgd.tracker.dal.entity.CardType;
-import ru.vgd.tracker.dal.entity.CashAccount;
-import ru.vgd.tracker.dal.entity.User;
-import ru.vgd.tracker.dal.repository.AccountRepository;
-import ru.vgd.tracker.dal.repository.UserRepository;
+import ru.vgd.tracker.dal.account.entity.Account;
+import ru.vgd.tracker.dal.account.repository.AccountRepository;
+import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
+import ru.vgd.tracker.util.mapper.AccountMapper;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
+    private final AccountMapper accountMapper;
 
     /**
      * Получить все счета пользователя
@@ -33,53 +31,26 @@ public class AccountService {
     }
 
     /**
-     * Получить первого пользователя (для разработки, пока нет аутентификации)
-     */
-    @Transactional(readOnly = true)
-    public User getFirstUser() {
-        return userRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new IllegalStateException("В системе нет ни одного пользователя"));
-    }
-
-    /**
-     * Создать новый счёт и привязать его к пользователю
+     * Создать новый счёт
      */
     @Transactional
     public Account createAccount(CreateAccountRequest request, User owner) {
+        log.debug("Запрос на создание нового счёта. ownerId: {}, request: {}", owner.getId(), request);
+
+        if (accountRepository.existsByOwnersIdAndName(owner.getId(), request.getName())) {
+            throw new IllegalArgumentException(
+                    "Счёт с названием «" + request.getName() + "» уже существует");
+        }
+
         Account account = switch (request.getAccountType()) {
-            case "BANK" -> createBankAccount(request);
-            case "CARD" -> createCardAccount(request);
-            case "CASH" -> createCashAccount(request);
-            default -> throw new IllegalArgumentException("Неизвестный тип счёта: " + request.getAccountType());
+            case BANK -> accountMapper.toBankAccount(request, Set.of(owner));
+            case CARD -> accountMapper.toCardAccount(request, Set.of(owner));
+            case CASH -> accountMapper.toCashAccount(request, Set.of(owner));
         };
 
-        account.setName(request.getName());
-        account.setBalance(request.getBalance() != null ? request.getBalance() : BigDecimal.ZERO);
-
-        owner = userRepository.loadUserWithRolesByUsername(owner.getUsername()).get();
-        owner.getAccounts().add(account);
-        userRepository.save(owner);
-
+        accountRepository.save(account);
+        log.info("Создан новый счёт. id: {}, type: {}, ownerId: {}",
+                account.getId(), account.getAccountType(), owner.getId());
         return account;
-    }
-
-    private BankAccount createBankAccount(CreateAccountRequest request) {
-        BankAccount account = new BankAccount();
-        account.setBankName(request.getBankName());
-        account.setAccountNumber(request.getAccountNumber());
-        return account;
-    }
-
-    private CardAccount createCardAccount(CreateAccountRequest request) {
-        CardAccount account = new CardAccount();
-        account.setBankName(request.getBankName());
-        account.setCardNumber(request.getCardNumber());
-        account.setCardType(CardType.valueOf(request.getCardType()));
-        account.setCreditLimit(request.getCreditLimit());
-        return account;
-    }
-
-    private CashAccount createCashAccount(CreateAccountRequest request) {
-        return new CashAccount();
     }
 }

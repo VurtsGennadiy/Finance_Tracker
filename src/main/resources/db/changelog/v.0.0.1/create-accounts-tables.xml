@@ -32,9 +32,7 @@
             <column name="bank_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="account_number" type="VARCHAR(100)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="uq_accounts_bank_account_number"/>
-            </column>
+            <column name="account_number" type="VARCHAR(100)"/>
         </createTable>
 
         <addForeignKeyConstraint baseTableName="accounts_bank"
@@ -54,9 +52,7 @@
             <column name="bank_name" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="card_number" type="VARCHAR(16)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="uq_accounts_card_account_number"/>
-            </column>
+            <column name="card_number" type="VARCHAR(16)"/>
             <column name="card_type" type="VARCHAR(10)">
                 <constraints nullable="false"/>
             </column>

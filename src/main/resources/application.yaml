@@ -22,3 +22,18 @@ spring:
 
   thymeleaf:
     cache: false
+
+logging:
+  level:
+    root: INFO
+    ru.vgd.tracker: DEBUG
+    org.zalando.logbook: DEBUG
+    # org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+
+  file:
+    name: logs/${spring.application.name}.log
+    logback:
+      rollingpolicy:
+        max-file-size: 10MB
+        file-name-pattern: logs/${spring.application.name}-%d{yyyy-MM-dd}.%i.log
+        max-history: 30

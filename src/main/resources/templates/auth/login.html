@@ -51,8 +51,13 @@
                 <input type="password" class="form-control" id="password" name="password"
                        placeholder="Введите пароль" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Войти</button>
+            <button type="submit" class="btn btn-primary w-100 mb-3">Войти</button>
         </form>
+
+        <div class="text-center">
+            <span class="text-muted">Нет аккаунта?</span>
+            <a th:href="@{/register}" class="text-decoration-none">Зарегистрироваться</a>
+        </div>
     </div>
 </div>
 
