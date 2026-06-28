@@ -9,6 +9,8 @@ import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
 import ru.vgd.tracker.util.mapper.AccountMapper;
+import ru.vgd.tracker.exception.AccessDeniedException;
+import ru.vgd.tracker.exception.ItemNotFoundException;
 
 import java.util.List;
 import java.util.Set;
@@ -28,6 +30,21 @@ public class AccountService {
     @Transactional(readOnly = true)
     public List<Account> getUserAccounts(UUID userId) {
         return accountRepository.findAllByOwnersId(userId);
+    }
+
+    /**
+     * Получить счёт по ID с проверкой владения
+     */
+    @Transactional(readOnly = true)
+    public Account getAccountById(UUID accountId, UUID userId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ItemNotFoundException("Счёт не найден"));
+        
+        if (account.getOwners().stream().noneMatch(user -> user.getId().equals(userId))) {
+            throw new AccessDeniedException("Нет прав для доступа к этому счёту");
+        }
+        
+        return account;
     }
 
     /**

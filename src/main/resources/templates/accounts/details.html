@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <title th:text="${account.name}">Детали счёта</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <!-- Навигация -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/accounts}">Мои счета</a></li>
+            <li class="breadcrumb-item active" th:text="${account.name}">Счёт</li>
+        </ol>
+    </nav>
+
+    <!-- Уведомление об успехе -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row">
+        <!-- Информация о счёте -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h4 class="card-title mb-0" th:text="${account.name}">Название счёта</h4>
+                        <span class="badge"
+                              th:classappend="${account.accountType.name() == 'BANK' ? 'bg-primary' :
+                                              (account.accountType.name() == 'CARD' ? 'bg-success' : 'bg-secondary')}"
+                              th:text="${account.accountType.displayName}">
+                        </span>
+                    </div>
+
+                    <h2 class="text-success mb-4" th:text="${#numbers.formatDecimal(account.balance, 1, 2)} + ' ₽'">
+                        0.00 ₽
+                    </h2>
+
+                    <ul class="list-unstyled mb-3">
+                        <li th:if="${account.accountType.name() == 'BANK' or account.accountType.name() == 'CARD'}" class="mb-2">
+                            <strong>Банк:</strong>
+                            <span th:text="${account.bankName}">Bank</span>
+                        </li>
+                        <li th:if="${account.accountType.name() == 'BANK'}" class="mb-2">
+                            <strong>Номер счёта:</strong>
+                            <span th:text="${account.accountNumber}">0000</span>
+                        </li>
+                        <li th:if="${account.accountType.name() == 'CARD'}" class="mb-2">
+                            <strong>Номер карты:</strong>
+                            <span th:text="${account.cardNumber}">0000</span>
+                        </li>
+                        <li th:if="${account.accountType.name() == 'CARD'}" class="mb-2">
+                            <strong>Тип карты:</strong>
+                            <span th:text="${account.cardType.displayName}">DEBIT</span>
+                        </li>
+                        <li th:if="${account.accountType.name() == 'CARD' and account.creditLimit != null}" class="mb-2">
+                            <strong>Кредитный лимит:</strong>
+                            <span th:text="${#numbers.formatDecimal(account.creditLimit, 1, 2)} + ' ₽'">0 ₽</span>
+                        </li>
+                    </ul>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/accounts/{id}/deposit(id=${account.id})}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Пополнить счёт
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- История транзакций -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">История операций</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(transactions)}" class="text-center py-4">
+                        <p class="text-muted mb-0">Операций пока нет</p>
+                    </div>
+
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(transactions)}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Категория</th>
+                                    <th>Описание</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="transaction : ${transactions}">
+                                    <td>
+                                        <small th:data-timestamp="${transaction.createdAtTimestamp}">
+                                            Загрузка...
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${transaction.category.incomeCategory ? 'bg-success' : 'bg-danger'}"
+                                              th:text="${transaction.category.displayName}">Категория</span>
+                                    </td>
+                                    <td th:text="${transaction.description}">-</td>
+                                    <td class="text-end">
+                                        <strong th:classappend="${transaction.type.displayName == 'Пополнение' ? 'text-success' : 'text-danger'}"
+                                                th:text="${(transaction.type.displayName == 'Пополнение' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 2) + ' ₽'}">
+                                            +0.00 ₽
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -8,16 +8,22 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.entity.CardType;
+import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.AccountService;
+import ru.vgd.tracker.service.TransactionService;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
+import ru.vgd.tracker.service.dto.TransactionIncomeCreateRequest;
+
 import java.util.List;
+import java.util.UUID;
 
 /**
  * MVC-контроллер для управления счетами через Thymeleaf
@@ -28,6 +34,7 @@ import java.util.List;
 public class AccountController {
 
     private final AccountService accountService;
+    private final TransactionService transactionService;
 
     /**
      * Отображает список всех счетов текущего пользователя
@@ -40,6 +47,72 @@ public class AccountController {
         List<Account> accounts = accountService.getUserAccounts(principal.getUserId());
         model.addAttribute("accounts", accounts);
         return "accounts/list";
+    }
+
+    /**
+     * Отображает детальную информацию по счёту
+     */
+    @GetMapping("/{accountId}")
+    public String viewAccount(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            Model model) {
+
+        Account account = accountService.getAccountById(accountId, principal.getUserId());
+        var transactions = transactionService.getAccountTransactions(accountId);
+        
+        model.addAttribute("account", account);
+        model.addAttribute("transactions", transactions);
+        return "accounts/details";
+    }
+
+    /**
+     * Показывает форму пополнения счёта
+     */
+    @GetMapping("/{accountId}/deposit")
+    public String showDepositForm(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            Model model) {
+
+        Account account = accountService.getAccountById(accountId, principal.getUserId());
+        
+        model.addAttribute("account", account);
+        model.addAttribute("request", new TransactionIncomeCreateRequest(accountId));
+        model.addAttribute("incomeCategories", Category.getIncomeCategories());
+        return "accounts/deposit";
+    }
+
+    /**
+     * Обрабатывает форму пополнения счёта
+     */
+    @PostMapping("/{accountId}/deposit")
+    public String createDeposit(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            @Valid @ModelAttribute("request") TransactionIncomeCreateRequest request,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
+            model.addAttribute("incomeCategories", Category.getIncomeCategories());
+            return "accounts/deposit";
+        }
+
+        try {
+            User user = principal.getUser();
+            transactionService.createIncomeTransaction(request, user);
+            redirectAttributes.addFlashAttribute("success", "Счёт успешно пополнен на " + 
+                    request.getAmount() + " ₽");
+            return "redirect:/accounts/" + accountId;
+        } catch (Exception e) {
+            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
+            model.addAttribute("incomeCategories", Category.getIncomeCategories());
+            model.addAttribute("error", "Ошибка при пополнении: " + e.getMessage());
+            return "accounts/deposit";
+        }
     }
 
     /**

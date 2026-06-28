@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-transactions-table" author="VurtsGD">
+        <comment>Создание таблицы для транзакций (пополнения, расходы, переводы)</comment>
+        <createTable tableName="transactions">
+            <column name="transaction_id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_transactions" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="NUMERIC(14,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category" type="VARCHAR(50)"/>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="transactions"
+                                 baseColumnNames="account_id"
+                                 constraintName="fk_transactions_account"
+                                 referencedTableName="accounts_base"
+                                 referencedColumnNames="account_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+
+        <createIndex tableName="transactions" indexName="idx_transactions_account_id">
+            <column name="account_id"/>
+        </createIndex>
+
+        <sql>
+            ALTER TABLE transactions
+            ADD CONSTRAINT transaction_type_valid
+            CHECK (type IN ('DEPOSIT', 'EXPENSE', 'TRANSFER_OUT', 'TRANSFER_IN'));
+        </sql>
+    </changeSet>
+</databaseChangeLog>
