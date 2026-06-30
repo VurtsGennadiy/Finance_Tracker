@@ -14,6 +14,7 @@ public enum Category {
     INCOME_INVESTMENT("Инвестиции"),
     INCOME_GIFT("Подарок"),
     INCOME_SALE("Продажа"),
+    INCOME_LOAN("Займ"),
     INCOME_OTHER("Другой доход"),
 
     EXPENSE_PRODUCT("Продукты"),
@@ -21,7 +22,7 @@ public enum Category {
     EXPENSE_TRANSPORT("Транспорт"),
     EXPENSE_AUTO("Содержание авто"),
     EXPENSE_HOME("Содержание жилья"),
-    EXPENSE_DEBT("Долги"),
+    EXPENSE_DEBT("Обслуживание долга"),
     EXPENSE_HEALTH("Здоровье"),
     EXPENSE_CLOTH("Одежда"),
     EXPENSE_ENTERTAINMENT("Развлечения"),

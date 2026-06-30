@@ -65,8 +65,11 @@
                     </ul>
 
                     <div class="d-grid gap-2">
-                        <a th:href="@{/accounts/{id}/deposit(id=${account.id})}" class="btn btn-success">
+                        <a th:href="@{/accounts/{id}/income(id=${account.id})}" class="btn btn-success">
                             <i class="bi bi-plus-circle"></i> Пополнить счёт
+                        </a>
+                        <a th:href="@{/accounts/{id}/expense(id=${account.id})}" class="btn btn-danger">
+                            <i class="bi bi-dash-circle"></i> Записать расход
                         </a>
                     </div>
                 </div>

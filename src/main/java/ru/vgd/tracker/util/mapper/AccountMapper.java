@@ -15,11 +15,14 @@ import java.util.Set;
 public interface AccountMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "balance", ignore = true)
     BankAccount toBankAccount(CreateAccountRequest request, Set<User> owners);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "balance", ignore = true)
     CardAccount toCardAccount(CreateAccountRequest request, Set<User> owners);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "balance", ignore = true)
     CashAccount toCashAccount(CreateAccountRequest request, Set<User> owners);
 }

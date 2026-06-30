@@ -12,7 +12,7 @@ import java.util.UUID;
  * DTO для формы создания входящей транзакции (пополнение счёта)
  */
 @Data
-public class TransactionIncomeCreateRequest {
+public class TransactionCreateRequest {
 
     @NotNull
     private UUID accountId;
@@ -25,10 +25,10 @@ public class TransactionIncomeCreateRequest {
 
     private String description;
 
-    public TransactionIncomeCreateRequest() {
+    public TransactionCreateRequest() {
     }
 
-    public TransactionIncomeCreateRequest(UUID accountId) {
+    public TransactionCreateRequest(UUID accountId) {
         this.accountId = accountId;
     }
 }

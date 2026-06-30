@@ -11,7 +11,7 @@ import ru.vgd.tracker.dal.transaction.TransactionRepository;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.AccessDeniedException;
 import ru.vgd.tracker.exception.ItemNotFoundException;
-import ru.vgd.tracker.service.dto.TransactionIncomeCreateRequest;
+import ru.vgd.tracker.service.dto.TransactionCreateRequest;
 import ru.vgd.tracker.util.mapper.TransactionMapper;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class TransactionService {
     private final TransactionMapper transactionMapper;
 
     @Transactional
-    public void createIncomeTransaction(TransactionIncomeCreateRequest request, User user) {
+    public void createIncomeTransaction(TransactionCreateRequest request, User user) {
         log.debug("Запрос на сохранение транзакции пополнения счёта. request: {}", request);
 
         Account account = accountRepository.findById(request.getAccountId())
@@ -44,6 +44,27 @@ public class TransactionService {
         accountRepository.save(account);
 
         log.info("Транзакция пополнения счёта сохранена. accountId: {}, transactionId: {}",
+                account.getId(), transaction.getId());
+    }
+
+    @Transactional
+    public void createExpenseTransaction(TransactionCreateRequest request, User user) {
+        log.debug("Запрос на сохранение транзакции расхода. request: {}", request);
+
+        Account account = accountRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new ItemNotFoundException("Счёт не найден"));
+
+        Set<User> owners = account.getOwners();
+        if (!owners.contains(user)) {
+            throw new AccessDeniedException(user.getUsername() + " не является владельцем счёта");
+        }
+
+        Transaction transaction = transactionMapper.fromExpenseCreateRequest(request, account);
+        account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+        transactionRepository.save(transaction);
+        accountRepository.save(account);
+
+        log.info("Транзакция расхода сохранена. accountId: {}, transactionId: {}",
                 account.getId(), transaction.getId());
     }
 

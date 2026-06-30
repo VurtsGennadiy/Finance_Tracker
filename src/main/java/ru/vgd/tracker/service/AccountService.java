@@ -6,13 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
+import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
+import ru.vgd.tracker.service.dto.TransactionCreateRequest;
 import ru.vgd.tracker.util.mapper.AccountMapper;
 import ru.vgd.tracker.exception.AccessDeniedException;
 import ru.vgd.tracker.exception.ItemNotFoundException;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,6 +27,7 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final TransactionService transactionService;
 
     /**
      * Получить все счета пользователя
@@ -68,6 +73,23 @@ public class AccountService {
         accountRepository.save(account);
         log.info("Создан новый счёт. id: {}, type: {}, ownerId: {}",
                 account.getId(), account.getAccountType(), owner.getId());
+
+        // Создание транзакции для начальной суммы на счёте
+        if (!Objects.equals(request.getBalance(), BigDecimal.ZERO)) {
+            TransactionCreateRequest transaction = new TransactionCreateRequest();
+            transaction.setAccountId(account.getId());
+            transaction.setDescription("Начальный баланс");
+            transaction.setAmount(request.getBalance().abs());
+
+            transaction.setCategory(ru.vgd.tracker.dal.transaction.Category.INCOME_OTHER);
+            if (request.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+                transaction.setCategory(Category.INCOME_OTHER);
+                transactionService.createIncomeTransaction(transaction, owner);
+            } else {
+                transaction.setCategory(Category.EXPENSE_OTHER);
+                transactionService.createExpenseTransaction(transaction, owner);
+            }
+        }
         return account;
     }
 }

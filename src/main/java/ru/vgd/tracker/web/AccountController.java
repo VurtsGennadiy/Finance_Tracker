@@ -20,7 +20,7 @@ import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
-import ru.vgd.tracker.service.dto.TransactionIncomeCreateRequest;
+import ru.vgd.tracker.service.dto.TransactionCreateRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +69,7 @@ public class AccountController {
     /**
      * Показывает форму пополнения счёта
      */
-    @GetMapping("/{accountId}/deposit")
+    @GetMapping("/{accountId}/income")
     public String showDepositForm(
             @PathVariable UUID accountId,
             @AuthenticationPrincipal SecurityUser principal,
@@ -78,19 +78,19 @@ public class AccountController {
         Account account = accountService.getAccountById(accountId, principal.getUserId());
         
         model.addAttribute("account", account);
-        model.addAttribute("request", new TransactionIncomeCreateRequest(accountId));
+        model.addAttribute("request", new TransactionCreateRequest(accountId));
         model.addAttribute("incomeCategories", Category.getIncomeCategories());
-        return "accounts/deposit";
+        return "accounts/income";
     }
 
     /**
      * Обрабатывает форму пополнения счёта
      */
-    @PostMapping("/{accountId}/deposit")
+    @PostMapping("/{accountId}/income")
     public String createDeposit(
             @PathVariable UUID accountId,
             @AuthenticationPrincipal SecurityUser principal,
-            @Valid @ModelAttribute("request") TransactionIncomeCreateRequest request,
+            @Valid @ModelAttribute("request") TransactionCreateRequest request,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -98,7 +98,7 @@ public class AccountController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
             model.addAttribute("incomeCategories", Category.getIncomeCategories());
-            return "accounts/deposit";
+            return "accounts/income";
         }
 
         try {
@@ -111,7 +111,56 @@ public class AccountController {
             model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
             model.addAttribute("incomeCategories", Category.getIncomeCategories());
             model.addAttribute("error", "Ошибка при пополнении: " + e.getMessage());
-            return "accounts/deposit";
+            return "accounts/income";
+        }
+    }
+
+    /**
+     * Показывает форму расходной транзакции
+     */
+    @GetMapping("/{accountId}/expense")
+    public String showExpenseForm(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            Model model) {
+
+        Account account = accountService.getAccountById(accountId, principal.getUserId());
+
+        model.addAttribute("account", account);
+        model.addAttribute("request", new TransactionCreateRequest(accountId));
+        model.addAttribute("expenseCategories", Category.getExpenseCategories());
+        return "accounts/expense";
+    }
+
+    /**
+     * Обрабатывает форму расходной транзакции
+     */
+    @PostMapping("/{accountId}/expense")
+    public String createExpense(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            @Valid @ModelAttribute("request") TransactionCreateRequest request,
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
+            model.addAttribute("expenseCategories", Category.getExpenseCategories());
+            return "accounts/expense";
+        }
+
+        try {
+            User user = principal.getUser();
+            transactionService.createExpenseTransaction(request, user);
+            redirectAttributes.addFlashAttribute("success", "Расход " +
+                    request.getAmount() + " ₽ успешно записан");
+            return "redirect:/accounts/" + accountId;
+        } catch (Exception e) {
+            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
+            model.addAttribute("expenseCategories", Category.getExpenseCategories());
+            model.addAttribute("error", "Ошибка при создании расхода: " + e.getMessage());
+            return "accounts/expense";
         }
     }
 

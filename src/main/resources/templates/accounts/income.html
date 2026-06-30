@@ -40,7 +40,7 @@
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
                     <!-- Форма пополнения -->
-                    <form th:action="@{/accounts/{id}/deposit(id=${account.id})}" th:object="${request}" method="post">
+                    <form th:action="@{/accounts/{id}/income(id=${account.id})}" th:object="${request}" method="post">
                         
                         <!-- Сумма -->
                         <div class="mb-3">

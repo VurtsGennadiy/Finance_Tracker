@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum TransactionType {
-    DEPOSIT("Пополнение"),
+    INCOME("Пополнение"),
     EXPENSE("Расход"),
     TRANSFER_OUT("Перевод (списание)"),
     TRANSFER_IN("Перевод (пополнение)");
