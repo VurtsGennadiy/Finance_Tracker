@@ -8,6 +8,7 @@ import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
+import ru.vgd.tracker.exception.AccountDeleteException;
 import ru.vgd.tracker.service.dto.CreateAccountRequest;
 import ru.vgd.tracker.service.dto.TransactionCreateRequest;
 import ru.vgd.tracker.util.mapper.AccountMapper;
@@ -91,5 +92,34 @@ public class AccountService {
             }
         }
         return account;
+    }
+
+    /**
+     * Удаление счёта
+     */
+    @Transactional
+    public void deleteAccount(UUID accountId, User user) {
+        log.debug("Запрос на удаление счёта. accountId: {}, userId: {}", accountId, user.getId());
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ItemNotFoundException("Счёт не найден"));
+
+        Set<User> owners = account.getOwners();
+        if (!owners.contains(user)) {
+            throw new AccessDeniedException("Нет прав для доступа к этому счёту");
+        }
+
+        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new AccountDeleteException("Удаление счёта с ненулевым балансом запрещено");
+        }
+
+        if (owners.size() == 1) {
+            accountRepository.delete(account);
+            log.info("Счёт удалён. id: {}", accountId);
+        } else {
+            owners.remove(user);
+            accountRepository.save(account);
+            log.info("Для счёта accountId: {} удален владелец userId: {}", accountId, user.getId());
+        }
     }
 }

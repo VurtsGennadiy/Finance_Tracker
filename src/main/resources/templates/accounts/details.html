@@ -23,6 +23,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
+    <!-- Уведомление об ошибке -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
     <div class="row">
         <!-- Информация о счёте -->
         <div class="col-lg-4 mb-4">
@@ -71,6 +77,10 @@
                         <a th:href="@{/accounts/{id}/expense(id=${account.id})}" class="btn btn-danger">
                             <i class="bi bi-dash-circle"></i> Записать расход
                         </a>
+                        <hr class="my-2">
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="bi bi-trash"></i> Удалить счёт
+                        </button>
                     </div>
                 </div>
             </div>
@@ -120,6 +130,28 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить счёт <strong th:text="${account.name}"></strong>?</p>
+                    <p class="text-danger mb-0">Это действие необратимо.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form th:action="@{/accounts/{id}/delete(id=${account.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
                 </div>
             </div>
         </div>

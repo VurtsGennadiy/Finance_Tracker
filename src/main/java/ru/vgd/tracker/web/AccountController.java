@@ -201,4 +201,24 @@ public class AccountController {
             return "accounts/create";
         }
     }
+
+    /**
+     * Удаляет счёт текущего пользователя
+     */
+    @PostMapping("/{accountId}/delete")
+    public String deleteAccount(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            User user = principal.getUser();
+            accountService.deleteAccount(accountId, user);
+            redirectAttributes.addFlashAttribute("success", "Счёт успешно удалён");
+            return "redirect:/accounts";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при удалении счёта: " + e.getMessage());
+            return "redirect:/accounts/" + accountId;
+        }
+    }
 }
