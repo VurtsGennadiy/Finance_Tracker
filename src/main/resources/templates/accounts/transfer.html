@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/main}">
 <head>
-    <title>Пополнение счёта</title>
+    <title>Перевод между счетами</title>
 </head>
 <body>
 
@@ -14,7 +14,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a th:href="@{/accounts}">Мои счета</a></li>
             <li class="breadcrumb-item"><a th:href="@{/accounts/{id}(id=${account.id})}" th:text="${account.name}">Счёт</a></li>
-            <li class="breadcrumb-item active">Пополнение</li>
+            <li class="breadcrumb-item active">Перевод</li>
         </ol>
     </nav>
 
@@ -22,10 +22,10 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Пополнение счёта</h5>
+                    <h5 class="mb-0">Перевод на другой счёт</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Информация о счёте -->
+                    <!-- Информация о счёте-источнике -->
                     <div class="alert alert-info mb-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -39,15 +39,18 @@
                     <!-- Сообщение об ошибке -->
                     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-                    <!-- Форма пополнения -->
-                    <form th:action="@{/accounts/{id}/income(id=${account.id})}" th:object="${request}" method="post">
-                        
+                    <!-- Форма перевода -->
+                    <form th:action="@{/accounts/{id}/transfer(id=${account.id})}" th:object="${request}" method="post">
+
+                        <!-- Счёт-источник (скрытое поле) -->
+                        <input type="hidden" th:field="*{fromAccountId}">
+
                         <!-- Сумма -->
                         <div class="mb-3">
-                            <label for="amount" class="form-label">Сумма пополнения *</label>
-                            <input type="number" 
-                                   id="amount" 
-                                   class="form-control" 
+                            <label for="amount" class="form-label">Сумма перевода *</label>
+                            <input type="number"
+                                   id="amount"
+                                   class="form-control"
                                    th:classappend="${#fields.hasErrors('amount')} ? 'is-invalid'"
                                    th:field="*{amount}"
                                    step="0.01"
@@ -57,37 +60,37 @@
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
                         </div>
 
-                        <!-- Категория -->
+                        <!-- Счёт назначения -->
                         <div class="mb-3">
-                            <label for="category" class="form-label">Категория *</label>
-                            <select id="category" 
-                                    class="form-select" 
-                                    th:classappend="${#fields.hasErrors('category')} ? 'is-invalid'"
-                                    th:field="*{category}"
+                            <label for="toAccountId" class="form-label">Счёт назначения *</label>
+                            <select id="toAccountId"
+                                    class="form-select"
+                                    th:classappend="${#fields.hasErrors('toAccountId')} ? 'is-invalid'"
+                                    th:field="*{toAccountId}"
                                     required>
-                                <option value="">Выберите категорию</option>
-                                <option th:each="cat : ${incomeCategories}"
-                                        th:value="${cat.name()}"
-                                        th:text="${cat.displayName}">Категория</option>
+                                <option value="">Выберите счёт</option>
+                                <option th:each="acc : ${otherAccounts}"
+                                        th:value="${acc.id}"
+                                        th:text="${acc.name}">Счёт</option>
                             </select>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('toAccountId')}" th:errors="*{toAccountId}"></div>
                         </div>
 
                         <!-- Описание -->
                         <div class="mb-4">
                             <label for="description" class="form-label">Описание</label>
-                            <textarea id="description" 
-                                      class="form-control" 
+                            <textarea id="description"
+                                      class="form-control"
                                       th:field="*{description}"
-                                      rows="3" 
-                                      placeholder="Необязательно: комментарий к пополнению"
+                                      rows="3"
+                                      placeholder="Необязательно: комментарий к переводу"
                                       maxlength="500"></textarea>
                         </div>
 
                         <!-- Кнопки -->
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-success flex-grow-1">
-                                <i class="bi bi-check-circle"></i> Пополнить счёт
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-arrow-left-right"></i> Выполнить перевод
                             </button>
                             <a th:href="@{/accounts/{id}(id=${account.id})}" class="btn btn-outline-secondary">
                                 Отмена

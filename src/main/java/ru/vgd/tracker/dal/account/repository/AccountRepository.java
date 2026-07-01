@@ -1,6 +1,8 @@
 package ru.vgd.tracker.dal.account.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.vgd.tracker.dal.account.entity.Account;
 
 import java.util.List;
@@ -14,4 +16,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     boolean existsByOwnersIdAndName(UUID ownerId, String name);
 
     Optional<Account> findById(UUID id);
+
+    Optional<Account> findByIdAndOwnersId(UUID id, UUID ownerId);
+
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM account_owners WHERE user_id = :userId AND account_id = :accountId)",
+            nativeQuery = true)
+    boolean isAccountOwnedBy(@Param("userId") UUID userId, @Param("accountId") UUID accountId);
 }

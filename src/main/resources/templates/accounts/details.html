@@ -77,6 +77,9 @@
                         <a th:href="@{/accounts/{id}/expense(id=${account.id})}" class="btn btn-danger">
                             <i class="bi bi-dash-circle"></i> Записать расход
                         </a>
+                        <a th:href="@{/accounts/{id}/transfer(id=${account.id})}" class="btn btn-primary">
+                            <i class="bi bi-arrow-left-right"></i> Перевести на другой счёт
+                        </a>
                         <hr class="my-2">
                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
                             <i class="bi bi-trash"></i> Удалить счёт
@@ -116,13 +119,17 @@
                                     </td>
                                     <td>
                                         <span class="badge"
+                                              th:if="${transaction.category != null}"
                                               th:classappend="${transaction.category.incomeCategory ? 'bg-success' : 'bg-danger'}"
                                               th:text="${transaction.category.displayName}">Категория</span>
+                                        <span class="badge bg-info"
+                                              th:if="${transaction.category == null}"
+                                              th:text="${transaction.type.displayName}">Перевод</span>
                                     </td>
                                     <td th:text="${transaction.description}">-</td>
                                     <td class="text-end">
-                                        <strong th:classappend="${transaction.type.displayName == 'Пополнение' ? 'text-success' : 'text-danger'}"
-                                                th:text="${(transaction.type.displayName == 'Пополнение' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 2) + ' ₽'}">
+                                        <strong th:classappend="${transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? 'text-success' : 'text-danger'}"
+                                                th:text="${(transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 2) + ' ₽'}">
                                             +0.00 ₽
                                         </strong>
                                     </td>
