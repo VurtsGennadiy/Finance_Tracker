@@ -15,6 +15,7 @@ public enum Category {
     INCOME_GIFT("Подарок"),
     INCOME_SALE("Продажа"),
     INCOME_LOAN("Займ"),
+    INCOME_CASHBACK("Кэшбэк"),
     INCOME_OTHER("Другой доход"),
 
     EXPENSE_PRODUCT("Продукты"),
@@ -27,6 +28,7 @@ public enum Category {
     EXPENSE_CLOTH("Одежда"),
     EXPENSE_ENTERTAINMENT("Развлечения"),
     EXPENSE_EDUCATION("Образование"),
+    EXPENSE_GIFT("Подарок"),
     EXPENSE_OTHER("Другие расходы");
 
     private final String displayName;

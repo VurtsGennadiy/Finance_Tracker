@@ -1,6 +1,5 @@
 package ru.vgd.tracker.dal.account.entity;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,8 +28,9 @@ import java.util.UUID;
 public abstract class Account {
 
     @Id
+    @GeneratedValue
     @Column(name = "account_id", nullable = false)
-    private UUID id = UuidCreator.getTimeOrdered();
+    private UUID id;
 
     @Column(name = "name", nullable = false)
     @EqualsAndHashCode.Include

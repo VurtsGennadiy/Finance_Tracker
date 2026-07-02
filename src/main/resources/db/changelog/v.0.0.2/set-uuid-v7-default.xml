@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="set-uuid-v7-default-on-accounts-base" author="VurtsGD">
+        <comment>Установка генерации UUIDv7 на стороне БД для accounts_base</comment>
+        <sql>ALTER TABLE accounts_base ALTER COLUMN account_id SET DEFAULT uuidv7();</sql>
+    </changeSet>
+
+    <changeSet id="set-uuid-v7-default-on-users" author="VurtsGD">
+        <comment>Установка генерации UUIDv7 на стороне БД для users</comment>
+        <sql>ALTER TABLE users ALTER COLUMN user_id SET DEFAULT uuidv7();</sql>
+    </changeSet>
+
+    <changeSet id="set-uuid-v7-default-on-transactions" author="VurtsGD">
+        <comment>Установка генерации UUIDv7 на стороне БД для transactions</comment>
+        <sql>ALTER TABLE transactions ALTER COLUMN transaction_id SET DEFAULT uuidv7();</sql>
+    </changeSet>
+</databaseChangeLog>

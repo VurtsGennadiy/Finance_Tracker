@@ -10,14 +10,12 @@ import ru.vgd.tracker.dal.transaction.Transaction;
 import ru.vgd.tracker.dal.transaction.TransactionRepository;
 import ru.vgd.tracker.dal.transaction.TransactionType;
 import ru.vgd.tracker.dal.user.User;
-import ru.vgd.tracker.exception.AccessDeniedException;
 import ru.vgd.tracker.exception.ItemNotFoundException;
 import ru.vgd.tracker.service.dto.TransactionCreateRequest;
 import ru.vgd.tracker.service.dto.TransferCreateRequest;
 import ru.vgd.tracker.util.mapper.TransactionMapper;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -101,8 +99,7 @@ public class TransactionService {
     private Account getAccountAndCheckOwner(UUID accountId, User user) {
         RuntimeException e = new ItemNotFoundException("Счёт не найден");
         if (accountRepository.isAccountOwnedBy(user.getId(), accountId)) {
-            return accountRepository.findById(accountId)
-                    .orElseThrow(() -> e);
+            return accountRepository.findById(accountId).orElseThrow(() -> e);
         } else {
             throw e;
         }

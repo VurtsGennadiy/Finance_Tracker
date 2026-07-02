@@ -1,6 +1,5 @@
 package ru.vgd.tracker.dal.transaction;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,9 +21,10 @@ import java.util.UUID;
 public class Transaction {
 
     @Id
+    @GeneratedValue
     @Column(name = "transaction_id", nullable = false)
     @EqualsAndHashCode.Include
-    private UUID id = UuidCreator.getTimeOrdered();
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)

@@ -43,14 +43,12 @@ public class AccountService {
      */
     @Transactional(readOnly = true)
     public Account getAccountById(UUID accountId, UUID userId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ItemNotFoundException("Счёт не найден"));
-        
-        if (account.getOwners().stream().noneMatch(user -> user.getId().equals(userId))) {
-            throw new AccessDeniedException("Нет прав для доступа к этому счёту");
+        RuntimeException e = new ItemNotFoundException("Счёт не найден");
+        if (accountRepository.isAccountOwnedBy(userId, accountId)) {
+            return accountRepository.findById(accountId).orElseThrow(() -> e);
+        } else {
+            throw e;
         }
-        
-        return account;
     }
 
     /**

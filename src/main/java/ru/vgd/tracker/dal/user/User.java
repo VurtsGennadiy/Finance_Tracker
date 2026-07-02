@@ -1,6 +1,5 @@
 package ru.vgd.tracker.dal.user;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,9 +26,10 @@ import java.util.UUID;
 public class User {
 
     @Id
+    @GeneratedValue
     @Column(name = "user_id", nullable = false)
     @EqualsAndHashCode.Include
-    private UUID id = UuidCreator.getTimeOrdered();
+    private UUID id;
 
     @Column(name = "username", nullable = false, unique = true)
     private String username;

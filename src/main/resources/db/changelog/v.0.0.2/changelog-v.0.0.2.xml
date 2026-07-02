@@ -6,4 +6,5 @@
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include relativeToChangelogFile="true" file="create-transactions-table.xml"/>
+    <include relativeToChangelogFile="true" file="set-uuid-v7-default.xml"/>
 </databaseChangeLog>
