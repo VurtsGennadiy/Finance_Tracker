@@ -1,10 +1,12 @@
 package ru.vgd.tracker.service.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -24,4 +26,12 @@ public class TransferCreateRequest {
     private BigDecimal amount;
 
     private String description;
+
+    private LocalDate transactionDate;
+
+    @AssertTrue(message = "Исходный и целевой счета должны различаться")
+    public boolean isAccountsDifferent() {
+        return !fromAccountId.equals(toAccountId);
+    }
+
 }

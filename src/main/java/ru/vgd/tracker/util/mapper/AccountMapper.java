@@ -7,7 +7,7 @@ import ru.vgd.tracker.dal.account.entity.BankAccount;
 import ru.vgd.tracker.dal.account.entity.CardAccount;
 import ru.vgd.tracker.dal.account.entity.CashAccount;
 import ru.vgd.tracker.dal.user.User;
-import ru.vgd.tracker.service.dto.CreateAccountRequest;
+import ru.vgd.tracker.service.dto.AccountCreateRequest;
 
 import java.util.Set;
 
@@ -16,13 +16,13 @@ public interface AccountMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "balance", ignore = true)
-    BankAccount toBankAccount(CreateAccountRequest request, Set<User> owners);
+    BankAccount toBankAccount(AccountCreateRequest request, Set<User> owners);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "balance", ignore = true)
-    CardAccount toCardAccount(CreateAccountRequest request, Set<User> owners);
+    CardAccount toCardAccount(AccountCreateRequest request, Set<User> owners);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "balance", ignore = true)
-    CashAccount toCashAccount(CreateAccountRequest request, Set<User> owners);
+    CashAccount toCashAccount(AccountCreateRequest request, Set<User> owners);
 }

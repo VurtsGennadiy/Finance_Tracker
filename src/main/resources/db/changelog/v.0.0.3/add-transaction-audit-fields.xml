@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add-transaction-audit-fields" author="VurtsGD">
+        <comment>Добавление полей аудита и связи для транзакций</comment>
+
+        <!-- Добавление поля transaction_date -->
+        <addColumn tableName="transactions">
+            <column name="transaction_date" type="DATE" defaultValueComputed="current_date">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        
+        <!-- Добавление поля created_by для автора транзакции-->
+        <addColumn tableName="transactions">
+            <column name="created_by" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        
+        <!-- Добавление поля related_transaction_id для связей между транзакциями перевода -->
+        <addColumn tableName="transactions">
+            <column name="related_transaction_id" type="UUID">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <!-- Добавление внешнего ключа для related_transaction_id -->
+        <addForeignKeyConstraint baseTableName="transactions"
+                                 baseColumnNames="related_transaction_id"
+                                 constraintName="fk_transactions_related_transaction"
+                                 referencedTableName="transactions"
+                                 referencedColumnNames="transaction_id"
+                                 deferrable="true" initiallyDeferred="true"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+        
+        <!-- Индекс для transaction_date -->
+        <createIndex tableName="transactions" indexName="idx_transactions_transaction_date">
+            <column name="transaction_date"/>
+        </createIndex>
+        
+        <!-- Индекс для created_by -->
+        <createIndex tableName="transactions" indexName="idx_transactions_created_by">
+            <column name="created_by"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

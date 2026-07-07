@@ -22,7 +22,7 @@
             </column>
             <column name="category" type="VARCHAR(50)"/>
             <column name="description" type="VARCHAR(500)"/>
-            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="current_timestamp">
                 <constraints nullable="false"/>
             </column>
         </createTable>

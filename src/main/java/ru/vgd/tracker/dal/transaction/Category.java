@@ -45,6 +45,8 @@ public enum Category {
                 INCOME_INVESTMENT,
                 INCOME_GIFT,
                 INCOME_SALE,
+                INCOME_LOAN,
+                INCOME_CASHBACK,
                 INCOME_OTHER
         );
     }
@@ -61,6 +63,7 @@ public enum Category {
                 EXPENSE_CLOTH,
                 EXPENSE_ENTERTAINMENT,
                 EXPENSE_EDUCATION,
+                EXPENSE_GIFT,
                 EXPENSE_OTHER
         );
     }

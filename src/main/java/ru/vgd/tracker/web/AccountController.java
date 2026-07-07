@@ -18,7 +18,7 @@ import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
-import ru.vgd.tracker.service.dto.CreateAccountRequest;
+import ru.vgd.tracker.service.dto.AccountCreateRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +69,7 @@ public class AccountController {
      */
     @GetMapping("/create")
     public String showCreateForm(Model model) {
-        model.addAttribute("request", new CreateAccountRequest());
+        model.addAttribute("request", new AccountCreateRequest());
         model.addAttribute("cardTypes", CardType.values());
         return "accounts/create";
     }
@@ -80,7 +80,7 @@ public class AccountController {
     @PostMapping("/create")
     public String createAccount(
             @AuthenticationPrincipal SecurityUser principal,
-            @Valid @ModelAttribute("request") CreateAccountRequest request,
+            @Valid @ModelAttribute("request") AccountCreateRequest request,
             BindingResult bindingResult,
             Model model,
             RedirectAttributes redirectAttributes) {

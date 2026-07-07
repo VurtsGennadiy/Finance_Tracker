@@ -9,7 +9,7 @@ import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.AccountDeleteException;
-import ru.vgd.tracker.service.dto.CreateAccountRequest;
+import ru.vgd.tracker.service.dto.AccountCreateRequest;
 import ru.vgd.tracker.service.dto.TransactionCreateRequest;
 import ru.vgd.tracker.util.mapper.AccountMapper;
 import ru.vgd.tracker.exception.AccessDeniedException;
@@ -55,7 +55,7 @@ public class AccountService {
      * Создать новый счёт
      */
     @Transactional
-    public Account createAccount(CreateAccountRequest request, User owner) {
+    public Account createAccount(AccountCreateRequest request, User owner) {
         log.debug("Запрос на создание нового счёта. ownerId: {}, request: {}", owner.getId(), request);
 
         if (accountRepository.existsByOwnersIdAndName(owner.getId(), request.getName())) {

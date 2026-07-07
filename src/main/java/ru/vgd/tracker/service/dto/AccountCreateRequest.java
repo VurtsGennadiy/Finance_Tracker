@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * DTO для формы создания нового счёта
  */
 @Data
-public class CreateAccountRequest {
+public class AccountCreateRequest {
 
     @NotBlank(message = "Название счёта обязательно")
     private String name;
