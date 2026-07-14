@@ -14,8 +14,8 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
-    show-sql: true
+        format_sql: false
+    show-sql: false
 
   liquibase:
     change-log: db/changelog/db.changelog-master.xml
@@ -26,9 +26,8 @@ spring:
 logging:
   level:
     root: INFO
-    ru.vgd.tracker: DEBUG
+    ru.vgd.tracker: INFO
     org.zalando.logbook: DEBUG
-    # org.springframework.orm.jpa.JpaTransactionManager: DEBUG
 
   file:
     name: logs/${spring.application.name}.log

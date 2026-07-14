@@ -1,4 +1,4 @@
-package ru.vgd.tracker.service.dto;
+package ru.vgd.tracker.service.dto.transaction;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
@@ -34,4 +34,11 @@ public class TransferCreateRequest {
         return !fromAccountId.equals(toAccountId);
     }
 
+
+    public TransferCreateRequest() {
+    }
+
+    public TransferCreateRequest(UUID fromAccountId) {
+        this.fromAccountId = fromAccountId;
+    }
 }

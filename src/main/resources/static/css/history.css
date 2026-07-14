@@ -1,0 +1,156 @@
+body {
+    background-color: #f5f7fa;
+    padding-bottom: 40px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 24px;
+}
+
+.filter-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+}
+
+.filter-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-align: center;
+    height: 100%;
+}
+
+.summary-card.expenses {
+    border-left: 4px solid #F3722C;
+}
+
+.summary-card.incomes {
+    border-left: 4px solid #43AA8B;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.summary-value.expense {
+    color: #F3722C;
+}
+
+.summary-value.income {
+    color: #43AA8B;
+}
+
+/* Кастомный dropdown для счетов */
+.accounts-dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.account-checkbox-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.account-checkbox-item:hover {
+    background-color: #f1f5f9;
+}
+
+.account-checkbox-item input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.date-range-inputs {
+    display: none;
+    margin-top: 8px;
+}
+
+.date-range-inputs.show {
+    display: flex;
+    gap: 8px;
+}
+
+/* Пагинация */
+.pagination-container {
+    padding: 16px;
+    background: white;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.pagination .page-link {
+    color: #6366f1;
+    border: none;
+    margin: 0 2px;
+    border-radius: 8px;
+    padding: 8px 14px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #6366f1;
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background-color: #e0e7ff;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.btn-apply-filters {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
+    transition: all 0.25s ease;
+}
+
+.btn-apply-filters:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(71, 85, 105, 0.3);
+    color: white;
+}
+
+.btn-reset-filters {
+    background: transparent;
+    color: #64748b;
+    border: 1.5px solid #e2e8f0;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.btn-reset-filters:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #334155;
+}

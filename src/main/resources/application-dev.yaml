@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+logging:
+  level:
+    ru.vgd.tracker: DEBUG
+    org.zalando.logbook: DEBUG
+    # org.springframework.orm.jpa.JpaTransactionManager: DEBUG

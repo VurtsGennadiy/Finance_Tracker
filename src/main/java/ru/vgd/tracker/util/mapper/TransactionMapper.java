@@ -6,8 +6,8 @@ import org.mapstruct.MappingConstants;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.transaction.Transaction;
 import ru.vgd.tracker.dal.user.User;
-import ru.vgd.tracker.service.dto.TransactionCreateRequest;
-import ru.vgd.tracker.service.dto.TransactionDto;
+import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.TransactionDto;
 
 import java.util.List;
 

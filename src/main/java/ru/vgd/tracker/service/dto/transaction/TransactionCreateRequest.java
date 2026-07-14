@@ -1,4 +1,4 @@
-package ru.vgd.tracker.service.dto;
+package ru.vgd.tracker.service.dto.transaction;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +26,7 @@ public class TransactionCreateRequest {
 
     private String description;
 
-    private LocalDate transactionDate;
+    private LocalDate transactionDate = LocalDate.now();
 
     public TransactionCreateRequest(UUID accountId) {
         this.accountId = accountId;

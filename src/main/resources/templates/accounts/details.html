@@ -1,147 +1,130 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/main}">
 <head>
-    <title th:text="${account.name}">Детали счёта</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${account.name}">Счёт - Wallet Control</title>
+    <link rel="stylesheet" th:href="@{/css/account_details.css}">
 </head>
 <body>
-
 <div layout:fragment="content">
 
-    <!-- Навигация -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a th:href="@{/accounts}">Мои счета</a></li>
-            <li class="breadcrumb-item active" th:text="${account.name}">Счёт</li>
-        </ol>
-    </nav>
+    <div class="container mt-4">
+        <div th:insert="~{fragments/flash-messages :: flashMessages}"></div>
 
-    <!-- Уведомление об успехе -->
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <span th:text="${success}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+        <!-- Верхний блок: карточка счёта + кнопки действий -->
+        <div class="row g-3 align-items-stretch justify-content-center">
 
-    <!-- Уведомление об ошибке -->
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+            <!-- Карточка счёта -->
+            <div class="col-lg-6">
+                <div class="account-card">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="account-name" th:text="${account.name}">Название счёта</div>
+                            <i class="bi bi-credit-card-2-front fs-2 opacity-75"></i>
+                        </div>
 
-    <div class="row">
-        <!-- Информация о счёте -->
-        <div class="col-lg-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h4 class="card-title mb-0" th:text="${account.name}">Название счёта</h4>
-                        <span class="badge"
-                              th:classappend="${account.accountType.name() == 'BANK' ? 'bg-primary' :
-                                              (account.accountType.name() == 'CARD' ? 'bg-success' : 'bg-secondary')}"
-                              th:text="${account.accountType.displayName}">
-                        </span>
+                        <div class="account-balance">
+                            <span th:text="${#numbers.formatDecimal(account.balance, 1, 'WHITESPACE', 2, 'COMMA')}">0,00</span> ₽
+                        </div>
                     </div>
 
-                    <h2 class="text-success mb-4" th:text="${#numbers.formatDecimal(account.balance, 1, 2)} + ' ₽'">
-                        0.00 ₽
-                    </h2>
+                    <div class="account-info-row">
+                        <div th:if="${account.accountType.name() == 'BANK' or account.accountType.name() == 'CARD'}" class="account-info-item">
+                            <div class="account-info-label">Банк</div>
+                            <div class="account-info-value" th:text="${account.bankName}">Название банка</div>
+                        </div>
+                        <div th:if="${account.accountType.name() == 'CARD'}" class="account-info-item">
+                            <div class="account-info-label" th:text="${account.cardType.displayName + ' карта'}">Номер карты</div>
+                            <div class="account-info-value" th:text="${account.cardNumber}">0000000000</div>
+                        </div>
+                        <div th:if="${account.accountType.name() == 'BANK'}" class="account-info-item">
+                            <div class="account-info-label">Номер счёта</div>
+                            <div class="account-info-value" th:text="${account.accountNumber}">0000000000</div>
+                        </div>
+                        <div th:if="${account.accountType.name() == 'CARD' and account.cardType.name() == 'CREDIT'}" class="account-info-item">
+                            <div class="account-info-label">Кредитный лимит</div>
+                            <div class="account-info-value">
+                                <span th:if="${account.creditLimit != null}">
+                                    <span th:text="${#numbers.formatDecimal(account.creditLimit, 1, 'WHITESPACE', 2, 'COMMA')}">0,00</span> ₽
+                                </span>
+                                <span th:unless="${account.creditLimit != null}">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    <ul class="list-unstyled mb-3">
-                        <li th:if="${account.accountType.name() == 'BANK' or account.accountType.name() == 'CARD'}" class="mb-2">
-                            <strong>Банк:</strong>
-                            <span th:text="${account.bankName}">Bank</span>
-                        </li>
-                        <li th:if="${account.accountType.name() == 'BANK'}" class="mb-2">
-                            <strong>Номер счёта:</strong>
-                            <span th:text="${account.accountNumber}">0000</span>
-                        </li>
-                        <li th:if="${account.accountType.name() == 'CARD'}" class="mb-2">
-                            <strong>Номер карты:</strong>
-                            <span th:text="${account.cardNumber}">0000</span>
-                        </li>
-                        <li th:if="${account.accountType.name() == 'CARD'}" class="mb-2">
-                            <strong>Тип карты:</strong>
-                            <span th:text="${account.cardType.displayName}">DEBIT</span>
-                        </li>
-                        <li th:if="${account.accountType.name() == 'CARD' and account.creditLimit != null}" class="mb-2">
-                            <strong>Кредитный лимит:</strong>
-                            <span th:text="${#numbers.formatDecimal(account.creditLimit, 1, 2)} + ' ₽'">0 ₽</span>
-                        </li>
-                    </ul>
+            <!-- Правая колонка: операции + управление -->
+            <div class="col-lg-5">
+                <div class="row g-3">
+                    <!-- Блок операций (доход/расход/перевод) -->
+                    <div class="col-12 col-md-7">
+                        <div class="operations-card">
+                            <div class="operations-card-header">
+                                <i class="bi bi-wallet2"></i>
+                                <span>Записать операцию</span>
+                            </div>
+                            <div class="operations-card-body">
+                                <button class="operation-btn btn-income" data-bs-toggle="modal" data-bs-target="#incomeModal">
+                                    <i class="bi bi-arrow-down-circle"></i>
+                                    <span class="fw-semibold">Доход</span>
+                                </button>
+                                <button class="operation-btn btn-expense" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                                    <i class="bi bi-arrow-up-circle"></i>
+                                    <span class="fw-semibold">Расход</span>
+                                </button>
+                                <button class="operation-btn btn-transfer" data-bs-toggle="modal" data-bs-target="#transferModal">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                    <span class="fw-semibold">Перевод</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="d-grid gap-2">
-                        <a th:href="@{/accounts/{id}/income(id=${account.id})}" class="btn btn-success">
-                            <i class="bi bi-plus-circle"></i> Пополнить счёт
-                        </a>
-                        <a th:href="@{/accounts/{id}/expense(id=${account.id})}" class="btn btn-danger">
-                            <i class="bi bi-dash-circle"></i> Записать расход
-                        </a>
-                        <a th:href="@{/accounts/{id}/transfer(id=${account.id})}" class="btn btn-primary">
-                            <i class="bi bi-arrow-left-right"></i> Перевести на другой счёт
-                        </a>
-                        <hr class="my-2">
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                            <i class="bi bi-trash"></i> Удалить счёт
-                        </button>
+                    <!-- Блок управления счётом -->
+                    <div class="col-12 col-md-5">
+                        <div class="management-card">
+                            <div class="management-card-header">
+                                <i class="bi bi-gear"></i>
+                                <span>Управление счётом</span>
+                            </div>
+                            <div class="management-card-body">
+                                <button hidden class="management-btn share" data-bs-toggle="modal" data-bs-target="#shareModal">
+                                    <i class="bi bi-share"></i>
+                                    Поделиться счётом
+                                </button>
+                                <button class="management-btn delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="bi bi-trash"></i>
+                                    Удалить счёт
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- История транзакций -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">История операций</h5>
+        <!-- Recent Operations -->
+        <div class="row mb-4" style="margin-top: 20px;">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="section-title mb-0">
+                        <i class="bi bi-clock-history me-2"></i>Последние операции
+                    </h5>
+                    <a href="/transactions" class="btn btn-sm btn-common">
+                        <i class="bi bi-list me-1"></i>Все операции</a>
                 </div>
-                <div class="card-body">
-                    <div th:if="${#lists.isEmpty(transactions)}" class="text-center py-4">
-                        <p class="text-muted mb-0">Операций пока нет</p>
-                    </div>
 
-                    <div class="table-responsive" th:unless="${#lists.isEmpty(transactions)}">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Дата</th>
-                                    <th>Категория</th>
-                                    <th>Описание</th>
-                                    <th class="text-end">Сумма</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="transaction : ${transactions}">
-                                    <td>
-                                        <small th:data-timestamp="${transaction.createdAtTimestamp}">
-                                            Загрузка...
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <span class="badge"
-                                              th:if="${transaction.category != null}"
-                                              th:classappend="${transaction.category.incomeCategory ? 'bg-success' : 'bg-danger'}"
-                                              th:text="${transaction.category.displayName}">Категория</span>
-                                        <span class="badge bg-info"
-                                              th:if="${transaction.category == null}"
-                                              th:text="${transaction.type.displayName}">Перевод</span>
-                                    </td>
-                                    <td th:text="${transaction.description}">-</td>
-                                    <td class="text-end">
-                                        <strong th:classappend="${transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? 'text-success' : 'text-danger'}"
-                                                th:text="${(transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 2) + ' ₽'}">
-                                            +0.00 ₽
-                                        </strong>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <div th:insert="~{fragments/transactions-list :: transactions-list(${transactions})}"></div>
             </div>
         </div>
+
     </div>
 
+    <!-- Modals -->
     <!-- Модальное окно подтверждения удаления -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -151,7 +134,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Вы уверены, что хотите удалить счёт <strong th:text="${account.name}"></strong>?</p>
+                    <p>Вы уверены, что хотите удалить счёт <strong th:text="${account.name}"></strong> и все связанные с ним данные?</p>
                     <p class="text-danger mb-0">Это действие необратимо.</p>
                 </div>
                 <div class="modal-footer">
@@ -164,6 +147,14 @@
         </div>
     </div>
 
+    <div th:insert="~{fragments/modals :: incomeModal(${accounts}, ${incomeCategories}, ${transactionCreateRequest})}"></div>
+    <div th:insert="~{fragments/modals :: expenseModal(${accounts}, ${expenseCategories}, ${transactionCreateRequest})}"></div>
+    <div th:insert="~{fragments/modals :: transferModal(${accounts}, ${transferCreateRequest})}"></div>
 </div>
+
+<div layout:fragment="scripts">
+    <script th:src="@{/js/date-picker.js}"></script>
+</div>
+
 </body>
 </html>

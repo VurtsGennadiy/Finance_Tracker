@@ -1,0 +1,149 @@
+<!-- Income Modal -->
+<div th:fragment="incomeModal(accounts, incomeCategories, transactionCreateRequest)" class="modal fade" id="incomeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Внести доход</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/transactions/income}" th:method="POST" th:object="${transactionCreateRequest}">
+                    <div class="mb-3">
+                        <label class="form-label" for="incomeAccountId">Счёт</label>
+                        <select class="form-select" id="incomeAccountId" th:field="*{accountId}" required>
+                            <option th:each="selectedAccount : ${accounts}"
+                                    th:value="${selectedAccount.id}"
+                                    th:text="${selectedAccount.name}">
+                                Название счёта
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="incomeAmounth">Сумма</label>
+                        <input th:field="*{amount}" type="number" step="0.01" class="form-control" id="incomeAmounth" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="incomeCategory">Категория</label>
+                        <select th:field="*{category}" class="form-select" id="incomeCategory" required>
+                            <option value="">Выберите категорию</option>
+                            <option th:each="category : ${incomeCategories}"
+                                    th:value="${category.name()}"
+                                    th:text="${category.displayName}">
+                                Категория
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="incomeDescription">Комментарий</label>
+                        <textarea th:field="*{description}" class="form-control"  id="incomeDescription" rows="2" maxlength="500"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="incomeDate">Дата транзакции</label>
+                        <input th:field="*{transactionDate}" type="date" class="form-control"  id="incomeDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-income w-100">Добавить доход</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Modal -->
+<div th:fragment="expenseModal(accounts, expenseCategories, transactionCreateRequest)" class="modal fade" id="expenseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Внести расход</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/transactions/expense}" th:method="POST" th:object="${transactionCreateRequest}">
+                    <div class="mb-3">
+                        <label class="form-label" for="expenseAccountId">Счёт</label>
+                        <select th:field="*{accountId}" class="form-select"  id="expenseAccountId" required>
+                            <option th:each="selectedAccount : ${accounts}"
+                                    th:value="${selectedAccount.id}"
+                                    th:text="${selectedAccount.name}">
+                                Название счёта
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="expenseAmount">Сумма</label>
+                        <input th:field="*{amount}" type="number"  step="0.01" class="form-control" id="expenseAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="expenseCategory">Категория</label>
+                        <select th:field="*{category}" class="form-select" id="expenseCategory" required>
+                            <option value="">Выберите категорию</option>
+                            <option th:each="category : ${expenseCategories}"
+                                    th:value="${category.name()}"
+                                    th:text="${category.displayName}">
+                                Категория
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="expenseDescription">Комментарий</label>
+                        <textarea th:field="*{description}" class="form-control" id="expenseDescription" rows="2" maxlength="500"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="expenseDate">Дата транзакции</label>
+                        <input th:field="*{transactionDate}" type="date" class="form-control" id="expenseDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-expense w-100">Добавить расход</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transfer Modal -->
+<div th:fragment="transferModal(accounts, transferCreateRequest)" class="modal fade" id="transferModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Перевод между счетами</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/transactions/transfer}" th:method="post" th:object="${transferCreateRequest}">
+                    <div class="mb-3">
+                        <label class="form-label" for="transferFromAccountId">Со счёта</label>
+                        <select th:field="*{fromAccountId}" class="form-select" id="transferFromAccountId" required>
+                            <option th:each="selectedAccount : ${accounts}"
+                                    th:value="${selectedAccount.id}"
+                                    th:text="${selectedAccount.name}">
+                                Название счёта
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="transferToAccountId">На счёт</label>
+                        <select th:field="*{toAccountId}" class="form-select" id="transferToAccountId" required>
+                            <option th:each="selectedAccount : ${accounts}"
+                                    th:value="${selectedAccount.id}"
+                                    th:text="${selectedAccount.name}">
+                                Название счёта
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="transferAmount">Сумма</label>
+                        <input th:field="*{amount}" type="number" step="0.01" class="form-control" id="transferAmount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="transferDescription">Комментарий</label>
+                        <textarea th:field="*{description}" class="form-control" id="transferDescription" rows="2" maxlength="500"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="transferDate">Дата транзакции</label>
+                        <input th:field="*{transactionDate}" type="date" class="form-control" id="transferDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-transfer w-100">Перевести</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

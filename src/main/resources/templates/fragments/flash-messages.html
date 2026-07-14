@@ -1,0 +1,29 @@
+<!-- Flash Messages -->
+<div th:fragment="flashMessages" class="row mb-3">
+    <div class="col-12">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <span th:text="${success}">Успех</span>
+            <!-- Кнопка отмены последней транзакции -->
+            <form th:if="${showUndoButton}" th:action="@{/transactions/recent/undo}" method="post" style="display: inline;" class="ms-3">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-sm btn-outline-secondary ms-2">Отменить</button>
+            </form>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Validation Errors -->
+        <div th:if="${validationErrors}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                <li th:each="error : ${validationErrors}" th:text="${error}">Ошибка валидации</li>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error} and ${#lists.isEmpty(validationErrors)}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle me-2"></i>
+            <span th:text="${error}">Ошибка</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+</div>

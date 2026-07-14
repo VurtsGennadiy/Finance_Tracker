@@ -14,7 +14,6 @@ public enum Category {
     INCOME_INVESTMENT("Инвестиции"),
     INCOME_GIFT("Подарок"),
     INCOME_SALE("Продажа"),
-    INCOME_LOAN("Займ"),
     INCOME_CASHBACK("Кэшбэк"),
     INCOME_OTHER("Другой доход"),
 
@@ -45,7 +44,6 @@ public enum Category {
                 INCOME_INVESTMENT,
                 INCOME_GIFT,
                 INCOME_SALE,
-                INCOME_LOAN,
                 INCOME_CASHBACK,
                 INCOME_OTHER
         );
@@ -66,13 +64,5 @@ public enum Category {
                 EXPENSE_GIFT,
                 EXPENSE_OTHER
         );
-    }
-
-    public boolean isIncomeCategory() {
-        return this.name().startsWith("INCOME_");
-    }
-
-    public boolean isExpenseCategory() {
-        return this.name().startsWith("EXPENSE_");
     }
 }

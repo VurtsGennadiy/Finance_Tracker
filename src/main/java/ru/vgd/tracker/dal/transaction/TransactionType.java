@@ -7,7 +7,8 @@ public enum TransactionType {
     INCOME("Пополнение"),
     EXPENSE("Расход"),
     TRANSFER_OUT("Перевод (списание)"),
-    TRANSFER_IN("Перевод (пополнение)");
+    TRANSFER_IN("Перевод (пополнение)"),
+    INITIAL("Начальный баланс");
 
     private final String displayName;
 

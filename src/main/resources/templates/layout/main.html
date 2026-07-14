@@ -4,32 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title layout:title-pattern="$CONTENT_TITLE — Finance Tracker">Finance Tracker</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .navbar-brand {
-            font-weight: 600;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-    </style>
+    <title layout:title-pattern="$CONTENT_TITLE — Wallet Control">Wallet Control</title>
+    <link th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/webjars/bootstrap-icons/1.13.1/font/bootstrap-icons.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
-        <a class="navbar-brand fw-bold" th:href="@{/home}">
+        <a class="navbar-brand fw-bold" th:href="@{/}">
             <i class="bi bi-wallet2 me-2"></i>Wallet Control
         </a>
-        <div class="navbar-nav ms-auto">
-            <span class="navbar-text text-light me-3" th:text="${username}">user</span>
+        <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
+            <span class="navbar-text text-light" th:text="${username}">user</span>
             <form th:action="@{/logout}" method="post" class="d-inline">
                 <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
             </form>
@@ -51,7 +39,6 @@
     <!-- Скрипты страниц будут вставлены здесь -->
 </div>
 
-<script th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
-<!--<script th:src="@{/js/time-localization.js}"></script>-->
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

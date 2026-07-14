@@ -10,15 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
-import ru.vgd.tracker.dal.transaction.Transaction;
-import ru.vgd.tracker.dal.transaction.TransactionRepository;
-import ru.vgd.tracker.dal.transaction.TransactionSort;
-import ru.vgd.tracker.dal.transaction.TransactionType;
+import ru.vgd.tracker.dal.transaction.*;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.ItemNotFoundException;
-import ru.vgd.tracker.service.dto.TransactionCreateRequest;
-import ru.vgd.tracker.service.dto.TransactionDto;
-import ru.vgd.tracker.service.dto.TransferCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.TransactionDto;
+import ru.vgd.tracker.service.dto.transaction.TransactionFilter;
+import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
 import ru.vgd.tracker.util.mapper.TransactionMapper;
 
 import java.math.BigDecimal;
@@ -114,18 +112,35 @@ public class TransactionService {
                 fromAccount.getId(), fromTransaction.getId(), toAccount.getId(), toTransaction.getId());
     }
 
+    /**
+     * Получение последних транзакций по счёту.
+     * @param accountId идентификатор счёта.
+     * @return List<TransactionDto> из 5 последних транзакций отсортированных по дате совершения транзакции.
+     */
     @Transactional(readOnly = true)
-    public List<Transaction> getAccountTransactions(UUID accountId) {
-        log.debug("Запрос на получение списка транзакций по счёту. accountId: {}", accountId);
-        return transactionRepository.findAllByAccountIdOrderByCreatedAtDesc(accountId);
+    public List<TransactionDto> getAccountLastTransactions(UUID accountId) {
+        final int limit = 5;
+        log.debug("Запрос на получение {} последних транзакций по счёту. accountId: {}", limit, accountId);
+        List<Transaction> transactions = transactionRepository.findByAccountId(
+                accountId, Limit.of(limit), TransactionSort.DEFAULT.getSortValue());
+        return transactionMapper.toDto(transactions);
     }
 
     @Transactional(readOnly = true)
     public List<TransactionDto> getUserLastTransactions(UUID userId) {
         final int limit = 5;
         log.debug("Запрос на получение {} последних транзакций для пользователя. userId: {}", limit, userId);
-        List<Transaction> transactions = transactionRepository.findByAccountOwnersIdOrderByTransactionDateDesc(userId, Limit.of(limit));
+        List<Transaction> transactions = transactionRepository.findByAccountOwnersId(
+                userId, Limit.of(limit), TransactionSort.DEFAULT.getSortValue());
         return transactionMapper.toDto(transactions);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TransactionDto> getTransactions(TransactionFilter filter, Pageable pageable) {
+        log.debug("Поиск транзакций {}, {} ", filter, pageable);
+        var spec = TransactionSpecifications.withFilter(filter);
+        Page<Transaction> transactionPage = transactionRepository.findAll(spec, pageable);
+        return transactionPage.map(transactionMapper::toDto);
     }
 
     @Transactional
@@ -142,18 +157,23 @@ public class TransactionService {
             case INCOME -> account.setBalance(account.getBalance().subtract(amount));
             case EXPENSE -> account.setBalance(account.getBalance().add(amount));
             case TRANSFER_IN, TRANSFER_OUT -> {
+                if (TransactionType.TRANSFER_IN == lastTransaction.getType()) {
+                    account.setBalance(account.getBalance().subtract(amount));
+                } else {
+                    account.setBalance(account.getBalance().add(amount));
+                }
+
                 Transaction relatedTransaction = lastTransaction.getRelatedTransaction();
-                Transaction incomeTransaction = TransactionType.TRANSFER_IN == lastTransaction.getType()
-                        ? lastTransaction : relatedTransaction;
-
-                Account incomeAccount = incomeTransaction.getAccount();
-                incomeAccount.setBalance(incomeAccount.getBalance().subtract(amount));
-
-                Account outcomeAccount = incomeTransaction.getRelatedTransaction().getAccount();
-                outcomeAccount.setBalance(outcomeAccount.getBalance().add(amount));
-
-                transactionRepository.delete(relatedTransaction);
-                log.info("Отменена связанная транзакция. transactionId: {}", relatedTransaction.getId());
+                if (relatedTransaction != null) {
+                    Account relatedAccount = relatedTransaction.getAccount();
+                    if (TransactionType.TRANSFER_IN == relatedTransaction.getType()) {
+                        relatedAccount.setBalance(account.getBalance().subtract(amount));
+                    } else {
+                        relatedAccount.setBalance(account.getBalance().add(amount));
+                    }
+                    transactionRepository.delete(relatedTransaction);
+                    log.info("Отменена связанная транзакция. transactionId: {}", relatedTransaction.getId());
+                }
             }
         }
 
@@ -174,6 +194,37 @@ public class TransactionService {
                 .orElseThrow(() -> new ItemNotFoundException("Транзакция не найдена"));
 
         cancelTransaction(lastTransaction.getId());
+    }
+
+    /**
+     * Сохранение начальной транзакции пополнения счёта при создании счёта.
+     * @param account только созданный счёт. У счёта должен быть только один владелец и не должно существовать транзакций по счёту.
+     * @throws IllegalStateException в случае, если у счёта не один владелец или уже существуют транзакции по счёту.
+     */
+    @Transactional
+    public void createAccountInitialTransaction(Account account) {
+        log.debug("Создание начальной транзакции для счёта accountId: {}", account.getId());
+
+        if (account.getOwners().size() != 1) {
+            throw new IllegalStateException("Невозможно создать начальную транзакцию для счёта accountId: "
+                    + account.getId() + " . Причина: у счёта должен быть единственный владелец.");
+        }
+
+        if (transactionRepository.countByAccountId(account.getId()) > 0) {
+            throw new IllegalStateException("Невозможно создать начальную транзакцию для счёта accountId: "
+                    + account.getId() + " . Причина: счёт уже имеет транзакции.");
+        }
+
+        User initiator = account.getOwners().stream().findFirst().orElseThrow();
+        Transaction transaction = new Transaction();
+        transaction.setCreatedBy(initiator);
+        transaction.setAccount(account);
+        transaction.setAmount(account.getBalance());
+        transaction.setType(TransactionType.INITIAL);
+        transaction.setDescription("Создание счёта");
+        transactionRepository.save(transaction);
+
+        log.info("Сохранена начальная транзакция account Id: {}, transactionId: {}", account.getId(), transaction.getId());
     }
 
     private Account getAccountAndCheckOwner(UUID accountId, User user) {

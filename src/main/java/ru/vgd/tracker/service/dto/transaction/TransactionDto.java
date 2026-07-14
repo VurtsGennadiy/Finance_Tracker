@@ -1,4 +1,4 @@
-package ru.vgd.tracker.service.dto;
+package ru.vgd.tracker.service.dto.transaction;
 
 import lombok.AccessLevel;
 import lombok.Data;

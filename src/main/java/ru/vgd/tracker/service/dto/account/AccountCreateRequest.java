@@ -1,4 +1,4 @@
-package ru.vgd.tracker.service.dto;
+package ru.vgd.tracker.service.dto.account;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;

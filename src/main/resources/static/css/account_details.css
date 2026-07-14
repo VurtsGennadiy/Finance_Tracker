@@ -1,0 +1,220 @@
+/* Карточка счёта */
+.account-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.account-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.account-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40%;
+    left: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.account-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.account-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.account-balance {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin: 15px 0;
+    letter-spacing: -1px;
+}
+
+.account-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    justify-content: flex-start;
+}
+
+.account-info-item {
+    flex: none;
+    padding: 0 16px;
+}
+
+.account-info-label {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.account-info-value {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Карточка управления счётом */
+.management-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.management-card-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 14px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.management-card-header i {
+    font-size: 1.1rem;
+    color: #667eea;
+}
+
+.management-card-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+/* Кнопки управления счётом */
+.management-btn {
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    gap: 10px;
+}
+
+.management-btn.share {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+}
+
+.management-btn.share:hover {
+    background: #f1f5f9;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.management-btn.delete {
+    background: white;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.management-btn.delete:hover {
+    background: #fee2e2;
+    border-color: #dc2626;
+}
+
+/* Карточка операций */
+.operations-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.operations-card-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 14px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.operations-card-header i {
+    font-size: 1.1rem;
+    color: #667eea;
+}
+
+.operations-card-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+/* Кнопки операций */
+.operation-btn {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 56px;
+}
+
+.operation-btn i {
+    font-size: 1.3rem;
+}
+
+.operation-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}

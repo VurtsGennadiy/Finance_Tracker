@@ -1,0 +1,65 @@
+body {
+    background-color: #f8f9fa;
+}
+.navbar-brand {
+    font-weight: 600;
+}
+
+.transaction-income  { color: #43AA8B; }
+.transaction-expense { color: #F3722C; }
+.transaction-transfer { color: #277DA1 }
+
+.quick-action-btn {
+    width: 120px;
+    height: 90px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn-income {
+    background: linear-gradient(135deg, #81AFA1 0%, #43AA8B 100%);
+    color: white;
+}
+
+.btn-expense {
+    background: linear-gradient(135deg, #FFC2A1 0%, #F3722C 100%);
+    color: white;
+}
+
+.btn-transfer {
+    background: linear-gradient(135deg, #91BED1 0%, #277DA1 100%);
+    color: white;
+}
+
+.btn-common {
+    background: transparent;
+    color: #059669;
+    border: 2px solid #41785b;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.btn-common:hover {
+    background: #ecfdf5;
+    border-color: #059669;
+    color: #047857;
+}
+
+.operation-item {
+    border-left: 4px solid #dee2e6;
+    transition: all 0.3s;
+}
+
+.operation-item:hover {
+    background-color: #f8f9fa;
+    border-left-color: #667eea;
+}

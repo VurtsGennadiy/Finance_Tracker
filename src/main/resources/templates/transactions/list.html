@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История операций</title>
+    <link rel="stylesheet" th:href="@{/css/history.css}">
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="mb-4">
+        <a th:href="@{/}" class="text-decoration-none">&larr; Вернуться на главную</a>
+    </div>
+
+    <div class="container">
+        <!-- Фильтры -->
+        <div class="filter-card">
+            <form id="filterForm" th:object="${filter}" th:action="@{/transactions}" method="get">
+                <div class="row filter-row g-3">
+
+                    <!-- Фильтр по периоду -->
+                    <div class="col-md-6">
+                        <div class="filter-label">
+                            <i class="bi bi-calendar-range me-1"></i>Период
+                        </div>
+                        <select class="form-select" id="periodSelect" th:field="*{period}" onchange="applyPeriod()">
+                            <option value="7">Последние 7 дней</option>
+                            <option value="30">Последние 30 дней</option>
+                            <option value="custom">Выбрать период</option>
+                        </select>
+
+                        <!-- Инпуты для произвольного периода -->
+                        <div class="date-range-inputs" id="dateRangeInputs">
+                            <div class="flex-grow-1">
+                                <label class="form-label small mb-1">С даты</label>
+                                <input type="date" class="form-control form-control-sm"
+                                       id="dateFromInput"
+                                       th:field="*{dateFrom}">
+                            </div>
+                            <div class="flex-grow-1">
+                                <label class="form-label small mb-1">По дату</label>
+                                <input type="date" class="form-control form-control-sm"
+                                       id="dateToInput"
+                                       th:field="*{dateTo}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Фильтр по счетам -->
+                    <div class="col-md-6">
+                        <div class="filter-label">
+                            <i class="bi bi-wallet2 me-1"></i>Счета
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" 
+                                    type="button" 
+                                    id="accountsDropdown" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false">
+                                <span id="selectedAccountsText">Все счета</span>
+                                <span class="badge bg-primary ms-2" id="accountsCount"
+                                      th:text="*{accounts.size()}">0</span>
+                            </button>
+                            <ul class="dropdown-menu w-100 accounts-dropdown p-2" aria-labelledby="accountsDropdown">
+                                <li class="account-checkbox-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="selectAllAccounts" 
+                                               checked 
+                                               onchange="toggleAllAccounts(this)">
+                                        <label class="form-check-label w-100" for="selectAllAccounts">
+                                            <strong>Выбрать все</strong>
+                                        </label>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                
+                                <li th:each="account : ${accounts}" class="account-checkbox-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input account-checkbox" 
+                                               type="checkbox" 
+                                               th:id="'account_' + ${account.id}"
+                                               th:value="${account.id}"
+                                               th:field="*{accounts}"
+                                               onchange="updateSelectedAccountsText()">
+                                        <label class="form-check-label w-100" 
+                                               th:for="'account_' + ${account.id}"
+                                               th:text="${account.name}">
+                                            Название счёта
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Чекбокс "Включить переводы" -->
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox"
+                                   id="includeTransfers"
+                                   name="includeTransfers"
+                                   th:field="*{includeTransfers}">
+                            <label class="form-check-label" for="includeTransfers">
+                                Показать переводы между счетами
+                            </label>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12 d-flex gap-2 justify-content-start">
+                        <button type="submit" class="btn btn-apply-filters px-4">
+                            <i class="bi bi-funnel me-1"></i>Применить фильтры
+                        </button>
+                        <a th:href="@{/transactions}" class="btn btn-reset-filters px-3">
+                            <i class="bi bi-x-circle me-1"></i>Сбросить
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Сводка: Доходы и Расходы -->
+        <div class="col-12">
+            <div class="row summary-row g-3 mb-4">
+                <div class="col-6">
+                    <div class="summary-card incomes">
+                        <div class="summary-label">
+                            <i class="bi bi-arrow-down-circle text-success me-1"></i>Доходы
+                        </div>
+                        <div class="summary-value income"
+                             th:text="${#numbers.formatDecimal(totalIncomes, 1, 'WHITESPACE', 2, 'COMMA')} + ' ₽'">
+                            0,00 ₽
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="summary-card expenses">
+                        <div class="summary-label">
+                            <i class="bi bi-arrow-up-circle text-danger me-1"></i>Расходы
+                        </div>
+                        <div class="summary-value expense"
+                             th:text="${#numbers.formatDecimal(totalExpenses, 1, 'WHITESPACE', 2, 'COMMA')} + ' ₽'">
+                            0,00 ₽
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список транзакций -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div th:insert="~{fragments/transactions-list :: transactions-list(${transactions})}"></div>
+            </div>
+        </div>
+
+        <!-- Пагинация -->
+        <div th:if="${totalPages > 1}" class="pagination-container mt-3">
+            <nav aria-label="Навигация по страницам">
+                <ul class="pagination justify-content-center mb-0">
+
+                    <!-- Кнопка "Назад" -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/transactions(
+                                 page=${currentPage - 1},
+                                 period=${filter.period},
+                                 dateFrom=${filter.dateFrom},
+                                 dateTo=${filter.dateTo},
+                                 includeTransfers=${filter.includeTransfers},
+                                 accounts=${filter.accounts})}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <!-- Номера страниц -->
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/transactions(
+                                 page=${i},
+                                 period=${filter.period},
+                                 dateFrom=${filter.dateFrom},
+                                 dateTo=${filter.dateTo},
+                                 includeTransfers=${filter.includeTransfers},
+                                 accounts=${filter.accounts})}"
+                           th:text="${i + 1}">1</a>
+                    </li>
+
+                    <!-- Кнопка "Вперёд" -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/transactions(
+                                 page=${currentPage + 1},
+                                 period=${filter.period},
+                                 dateFrom=${filter.dateFrom},
+                                 dateTo=${filter.dateTo},
+                                 includeTransfers=${filter.includeTransfers},
+                                 accounts=${filter.accounts})}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+
+            <!-- Информация о страницах -->
+            <div class="text-center mt-2 small text-muted">
+                Страница <span th:text="${currentPage + 1}">1</span> из <span th:text="${totalPages}">10</span>
+                (всего <span th:text="${totalElements}">100</span> операций)
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        // Применение выбранного периода
+        function applyPeriod() {
+            const periodSelect = document.getElementById('periodSelect');
+            const dateRangeInputs = document.getElementById('dateRangeInputs');
+            const dateFromInput = document.getElementById('dateFromInput');
+            const dateToInput = document.getElementById('dateToInput');
+
+            const period = periodSelect.value;
+
+            // Показываем/скрываем инпуты
+            if (period === 'custom') {
+                dateRangeInputs.style.display = 'flex';
+                return; // Не меняем даты, если custom
+            } else {
+                dateRangeInputs.style.display = 'none';
+            }
+
+            // Вычисляем даты только для "7" и "30"
+            const today = new Date();
+            let fromDate = new Date();
+
+            if (period === '7') {
+                fromDate.setDate(today.getDate() - 7);
+            } else if (period === '30') {
+                fromDate.setDate(today.getDate() - 30);
+            }
+
+            // Обновляем инпуты
+            dateFromInput.value = formatDate(fromDate);
+            dateToInput.value = formatDate(today);
+        }
+
+        // Форматирование даты в YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateFromInput = document.getElementById('dateFromInput');
+            const dateToInput = document.getElementById('dateToInput');
+            const periodSelect = document.getElementById('periodSelect');
+            const dateRangeInputs = document.getElementById('dateRangeInputs');
+
+            // При изменении дат вручную — переключаем на "custom"
+            dateFromInput.addEventListener('change', function() {
+                periodSelect.value = 'custom';
+                dateRangeInputs.style.display = 'flex';
+            });
+
+            dateToInput.addEventListener('change', function() {
+                periodSelect.value = 'custom';
+                dateRangeInputs.style.display = 'flex';
+            });
+
+            // Инициализация видимости инпутов
+            if (periodSelect.value === 'custom') {
+                dateRangeInputs.style.display = 'flex';
+            } else {
+                dateRangeInputs.style.display = 'none';
+            }
+
+            updateSelectedAccountsText();
+        });
+
+
+        function toggleAllAccounts(selectAllCheckbox) {
+            const accountCheckboxes = document.querySelectorAll('.account-checkbox');
+            accountCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateSelectedAccountsText();
+        }
+
+        function updateSelectedAccountsText() {
+            const checkedCount = document.querySelectorAll('.account-checkbox:checked').length;
+            const accountCheckboxesCount = document.querySelectorAll('.account-checkbox').length;
+
+            document.getElementById('accountsCount').textContent = checkedCount;
+            document.getElementById('selectAllAccounts').checked = checkedCount === accountCheckboxesCount;
+
+            const selectedText = document.getElementById('selectedAccountsText');
+            if (checkedCount === accountCheckboxesCount) {
+                selectedText.textContent = 'Все счета';
+            } else if (checkedCount === 0) {
+                selectedText.textContent = 'Не выбрано';
+            } else {
+                selectedText.textContent = 'Выбранные';
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

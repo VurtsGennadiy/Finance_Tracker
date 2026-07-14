@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import ru.vgd.tracker.exception.AccessDeniedException;
 import ru.vgd.tracker.exception.ItemNotFoundException;
 import ru.vgd.tracker.security.SecurityUser;
@@ -31,7 +32,7 @@ public class GlobalControllerAdvice {
     /**
      * Обработка исключения "Элемент не найден"
      */
-    @ExceptionHandler(ItemNotFoundException.class)
+    @ExceptionHandler({ItemNotFoundException.class, NoResourceFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ModelAndView handleItemNotFoundException(ItemNotFoundException ex, HttpServletRequest request) {
         log.warn("Item not found: {}", ex.getMessage());

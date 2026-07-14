@@ -1,35 +1,38 @@
 package ru.vgd.tracker.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.vgd.tracker.dal.account.entity.Account;
-import ru.vgd.tracker.dal.transaction.Category;
+import ru.vgd.tracker.dal.transaction.TransactionType;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
-import ru.vgd.tracker.service.dto.TransactionCreateRequest;
-import ru.vgd.tracker.service.dto.TransferCreateRequest;
+import ru.vgd.tracker.service.dto.account.AccountDto;
+import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.TransactionDto;
+import ru.vgd.tracker.service.dto.transaction.TransactionFilter;
+import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * MVC-контроллер для управления транзакциями через Thymeleaf
  */
 @Controller
-@RequestMapping("/accounts/{accountId}")
+@RequestMapping("/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
 
@@ -37,168 +40,165 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     /**
-     * Показывает форму пополнения счёта
+     * Показать транзакции по счетам пользователя
      */
-    @GetMapping("/income")
-    public String showDepositForm(
-            @PathVariable UUID accountId,
-            @AuthenticationPrincipal SecurityUser principal,
-            Model model) {
-
-        Account account = accountService.getAccountById(accountId, principal.getUserId());
-
-        model.addAttribute("account", account);
-        model.addAttribute("request", new TransactionCreateRequest(accountId));
-        model.addAttribute("incomeCategories", Category.getIncomeCategories());
-        return "accounts/income";
-    }
-
-    /**
-     * Обрабатывает форму пополнения счёта
-     */
-    @PostMapping("/income")
-    public String createDeposit(
-            @PathVariable UUID accountId,
-            @AuthenticationPrincipal SecurityUser principal,
-            @Valid @ModelAttribute("request") TransactionCreateRequest request,
-            BindingResult bindingResult,
+    @GetMapping
+    public String getTransactions(
+            @ModelAttribute TransactionFilter filter,
+            @PageableDefault(size = 30, sort = "transactionDate", direction = Sort.Direction.DESC) Pageable pageable,
             Model model,
-            RedirectAttributes redirectAttributes) {
+            @AuthenticationPrincipal SecurityUser principal
+    ) {
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
-            model.addAttribute("incomeCategories", Category.getIncomeCategories());
-            return "accounts/income";
-        }
+        List<AccountDto> userAccounts = accountService.getUserAccounts(principal.getUserId());
+        if (filter.getAccounts().isEmpty()) filter.setAccounts(userAccounts.stream().map(AccountDto::getId).toList());
 
-        try {
-            User user = principal.getUser();
-            transactionService.createIncomeTransaction(request, user);
-            redirectAttributes.addFlashAttribute("success", "Счёт успешно пополнен на " +
-                    request.getAmount() + " ₽");
-            return "redirect:/accounts/" + accountId;
-        } catch (Exception e) {
-            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
-            model.addAttribute("incomeCategories", Category.getIncomeCategories());
-            model.addAttribute("error", "Ошибка при пополнении: " + e.getMessage());
-            return "accounts/income";
-        }
-    }
+        Page<TransactionDto> transactionPage = transactionService.getTransactions(filter, pageable);
+        BigDecimal totalIncomes = BigDecimal.ZERO;
+        BigDecimal totalExpenses = BigDecimal.ZERO;
 
-    /**
-     * Показывает форму расходной транзакции
-     */
-    @GetMapping("/expense")
-    public String showExpenseForm(
-            @PathVariable UUID accountId,
-            @AuthenticationPrincipal SecurityUser principal,
-            Model model) {
-
-        Account account = accountService.getAccountById(accountId, principal.getUserId());
-
-        model.addAttribute("account", account);
-        model.addAttribute("request", new TransactionCreateRequest(accountId));
-        model.addAttribute("expenseCategories", Category.getExpenseCategories());
-        return "accounts/expense";
-    }
-
-    /**
-     * Обрабатывает форму расходной транзакции
-     */
-    @PostMapping("/expense")
-    public String createExpense(
-            @PathVariable UUID accountId,
-            @AuthenticationPrincipal SecurityUser principal,
-            @Valid @ModelAttribute("request") TransactionCreateRequest request,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
-            model.addAttribute("expenseCategories", Category.getExpenseCategories());
-            return "accounts/expense";
-        }
-
-        try {
-            User user = principal.getUser();
-            transactionService.createExpenseTransaction(request, user);
-            redirectAttributes.addFlashAttribute("success", "Расход " +
-                    request.getAmount() + " ₽ успешно записан");
-            return "redirect:/accounts/" + accountId;
-        } catch (Exception e) {
-            model.addAttribute("account", accountService.getAccountById(accountId, principal.getUserId()));
-            model.addAttribute("expenseCategories", Category.getExpenseCategories());
-            model.addAttribute("error", "Ошибка при создании расхода: " + e.getMessage());
-            return "accounts/expense";
-        }
-    }
-
-    /**
-     * Показывает форму перевода между счетами
-     */
-    @GetMapping("/transfer")
-    public String showTransferForm(
-            @PathVariable UUID accountId,
-            @AuthenticationPrincipal SecurityUser principal,
-            Model model) {
-
-        TransferCreateRequest request = new TransferCreateRequest();
-        request.setFromAccountId(accountId);
-        model.addAttribute("request", request);
-
-        populateTransferModel(accountId, principal.getUserId(), model);
-        return "accounts/transfer";
-    }
-
-    /**
-     * Обрабатывает форму перевода между счетами
-     */
-    @PostMapping("/transfer")
-    public String createTransfer(
-            @PathVariable UUID accountId,
-            @AuthenticationPrincipal SecurityUser principal,
-            @Valid @ModelAttribute("request") TransferCreateRequest request,
-            BindingResult bindingResult,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
-        if (bindingResult.hasErrors()) {
-            populateTransferModel(accountId, principal.getUserId(), model);
-            return "accounts/transfer";
-        }
-
-        try {
-            User user = principal.getUser();
-            transactionService.createTransferTransactions(request, user);
-            redirectAttributes.addFlashAttribute("success",
-                    "Перевод " + request.getAmount() + " ₽ успешно выполнен");
-            return "redirect:/accounts/" + accountId;
-        } catch (Exception e) {
-            populateTransferModel(accountId, principal.getUserId(), model);
-            model.addAttribute("error", "Ошибка при выполнении перевода: " + e.getMessage());
-            return "accounts/transfer";
-        }
-    }
-
-    /**
-     * Заполняет модель данными счетов для формы перевода.
-     * Вызывается только при необходимости повторного рендеринга формы (ошибки валидации, исключения).
-     */
-    private void populateTransferModel(UUID accountId, UUID userId, Model model) {
-        List<Account> accountsList = accountService.getUserAccounts(userId);
-        List<Account> otherAccounts = new ArrayList<>(accountsList.size() - 1);
-        Account fromAccount = null;
-
-        for (Account currentAccount : accountsList) {
-            if (currentAccount.getId().equals(accountId)) {
-                fromAccount = currentAccount;
-            } else {
-                otherAccounts.add(currentAccount);
+        for (TransactionDto transaction : transactionPage.getContent()) {
+            if (TransactionType.INCOME == transaction.getType()) {
+                totalIncomes = totalIncomes.add(transaction.getAmount());
+            } else if (TransactionType.EXPENSE == transaction.getType()) {
+                totalExpenses = totalExpenses.add(transaction.getAmount());
             }
         }
 
-        model.addAttribute("account", fromAccount);
-        model.addAttribute("otherAccounts", otherAccounts);
+        model.addAttribute("filter", filter);
+        model.addAttribute("transactions", transactionPage.getContent());
+        model.addAttribute("accounts", userAccounts);
+        model.addAttribute("currentPage", transactionPage.getNumber());
+        model.addAttribute("totalPages", transactionPage.getTotalPages());
+        model.addAttribute("totalIncomes", totalIncomes);
+        model.addAttribute("totalExpenses", totalExpenses);
+
+        return "transactions/list";
+    }
+
+    /**
+     * Создание доходной транзакции из модального окна страницы index
+     */
+    @PostMapping("/income")
+    public String createIncome(@AuthenticationPrincipal SecurityUser securityUser,
+                               @Valid @ModelAttribute("transactionCreateRequest") TransactionCreateRequest request,
+                               BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest httpRequest) {
+
+        String redirectUri = "redirect:" + extractRedirectUri(httpRequest);
+
+        if (bindingResult.hasErrors()) {
+            populateBindingErrors(bindingResult, redirectAttributes);
+            return redirectUri;
+        }
+
+        try {
+            User user = securityUser.getUser();
+            transactionService.createIncomeTransaction(request, user);
+            redirectAttributes.addFlashAttribute("success", "Доход успешно добавлен");
+            redirectAttributes.addFlashAttribute("showUndoButton", true);
+            return redirectUri;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при добавлении дохода: " + e.getMessage());
+            return redirectUri;
+        }
+    }
+
+    /**
+     * Создание расходной транзакции из модального окна страницы index
+     */
+    @PostMapping("/expense")
+    public String createExpense(@AuthenticationPrincipal SecurityUser securityUser,
+                                @Valid @ModelAttribute("transactionCreateRequest") TransactionCreateRequest request,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes,
+                                HttpServletRequest httpRequest) {
+
+        String redirectUri = "redirect:" + extractRedirectUri(httpRequest);
+
+        if (bindingResult.hasErrors()) {
+            populateBindingErrors(bindingResult, redirectAttributes);
+            return redirectUri;
+        }
+
+        try {
+            User user = securityUser.getUser();
+            transactionService.createExpenseTransaction(request, user);
+            redirectAttributes.addFlashAttribute("success", "Расход успешно добавлен");
+            redirectAttributes.addFlashAttribute("showUndoButton", true);
+            return redirectUri;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при добавлении расхода: " + e.getMessage());
+            return redirectUri;
+        }
+    }
+
+    /**
+     * Создание перевода между счетами из модального окна страницы index
+     */
+    @PostMapping("/transfer")
+    public String createTransfer(@AuthenticationPrincipal SecurityUser securityUser,
+                                 @Valid @ModelAttribute("transferCreateRequest") TransferCreateRequest request,
+                                 BindingResult bindingResult,
+                                 RedirectAttributes redirectAttributes,
+                                 HttpServletRequest httpRequest) {
+
+        String redirectUri = "redirect:" + extractRedirectUri(httpRequest);
+
+        if (bindingResult.hasErrors()) {
+            populateBindingErrors(bindingResult, redirectAttributes);
+            return redirectUri;
+        }
+
+        try {
+            User user = securityUser.getUser();
+            transactionService.createTransferTransactions(request, user);
+            redirectAttributes.addFlashAttribute("success", "Перевод успешно добавлен");
+            redirectAttributes.addFlashAttribute("showUndoButton", true);
+            return redirectUri;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при добавлении перевода: " + e.getMessage());
+            return redirectUri;
+        }
+    }
+
+    /**
+     * Отмена последней транзакции введённой в модальном окне страницы index
+     */
+    @PostMapping("/recent/undo")
+    public String undoRecentTransaction(@AuthenticationPrincipal SecurityUser securityUser,
+                                        RedirectAttributes redirectAttributes) {
+        try {
+            transactionService.cancelLastTransaction(securityUser.getUserId());
+            redirectAttributes.addFlashAttribute("success", "Операция отменена");
+            return "redirect:/";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при отмене операции: " + e.getMessage());
+            return "redirect:/";
+        }
+    }
+
+    /**
+     * Наполняет redirectAttributes ошибками валидации
+     */
+    private void populateBindingErrors(BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        List<String> errorMessages = bindingResult.getAllErrors().stream()
+                .map(error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Ошибка валидации")
+                .toList();
+
+        redirectAttributes.addFlashAttribute("validationErrors", errorMessages);
+    }
+
+    /**
+     * Извлекает URI страницы, с которой была отправлена форма
+     */
+    private String extractRedirectUri(HttpServletRequest httpRequest) {
+        String redirectUri = httpRequest.getHeader("Referer");
+        if (redirectUri == null) {
+            redirectUri = "/";
+        }
+
+        return redirectUri;
     }
 }

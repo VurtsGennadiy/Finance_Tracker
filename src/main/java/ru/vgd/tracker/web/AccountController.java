@@ -6,19 +6,19 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.entity.CardType;
+import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
+import ru.vgd.tracker.exception.ItemNotFoundException;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
-import ru.vgd.tracker.service.dto.AccountCreateRequest;
+import ru.vgd.tracker.service.dto.account.AccountCreateRequest;
+import ru.vgd.tracker.service.dto.account.AccountDto;
+import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,38 +34,39 @@ public class AccountController {
     private final AccountService accountService;
     private final TransactionService transactionService;
 
-    /**
-     * Отображает список всех счетов текущего пользователя
-     */
-    @GetMapping
-    public String listAccounts(
-            @AuthenticationPrincipal SecurityUser principal,
-            Model model) {
-
-        List<Account> accounts = accountService.getUserAccounts(principal.getUserId());
-        model.addAttribute("accounts", accounts);
-        return "accounts/list";
-    }
 
     /**
-     * Отображает детальную информацию по счёту
+     * Отобразить страницу детальной информации по счёту
      */
     @GetMapping("/{accountId}")
-    public String viewAccount(
+    public String getAccountDetails(
             @PathVariable UUID accountId,
             @AuthenticationPrincipal SecurityUser principal,
             Model model) {
 
-        Account account = accountService.getAccountById(accountId, principal.getUserId());
-        var transactions = transactionService.getAccountTransactions(accountId);
-        
-        model.addAttribute("account", account);
-        model.addAttribute("transactions", transactions);
+        List<AccountDto> accounts = accountService.getUserAccounts(principal.getUserId());
+        AccountDto currentAccount = accounts.stream()
+                .filter(account -> account.getId().equals(accountId))
+                .findFirst()
+                .orElseThrow(() -> new ItemNotFoundException("Account not found"));
+
+        var recentTransactions = transactionService.getAccountLastTransactions(accountId);
+
+        model.addAttribute("account", currentAccount);
+        model.addAttribute("accounts", accounts);
+
+        model.addAttribute("transactions", recentTransactions);
+        model.addAttribute("incomeCategories", Category.getIncomeCategories());
+        model.addAttribute("expenseCategories", Category.getExpenseCategories());
+
+        model.addAttribute("transactionCreateRequest", new TransactionCreateRequest(accountId));
+        model.addAttribute("transferCreateRequest", new TransferCreateRequest(accountId));
+
         return "accounts/details";
     }
 
     /**
-     * Показывает форму создания нового счёта
+     * Отобразить форму создания нового счёта
      */
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -75,7 +76,7 @@ public class AccountController {
     }
 
     /**
-     * Обрабатывает форму создания нового счёта
+     * Обработка формы создания нового счёта
      */
     @PostMapping("/create")
     public String createAccount(
@@ -94,7 +95,7 @@ public class AccountController {
             User user = principal.getUser();
             accountService.createAccount(request, user);
             redirectAttributes.addFlashAttribute("success", "Счёт «" + request.getName() + "» успешно создан!");
-            return "redirect:/accounts";
+            return "redirect:/";
         } catch (Exception e) {
             model.addAttribute("cardTypes", List.of(CardType.values()));
             model.addAttribute("error", "Ошибка при создании счёта: " + e.getMessage());
@@ -103,7 +104,7 @@ public class AccountController {
     }
 
     /**
-     * Удаляет счёт текущего пользователя
+     * Удаление счёта
      */
     @PostMapping("/{accountId}/delete")
     public String deleteAccount(
@@ -115,7 +116,7 @@ public class AccountController {
             User user = principal.getUser();
             accountService.deleteAccount(accountId, user);
             redirectAttributes.addFlashAttribute("success", "Счёт успешно удалён");
-            return "redirect:/accounts";
+            return "redirect:/";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка при удалении счёта: " + e.getMessage());
             return "redirect:/accounts/" + accountId;

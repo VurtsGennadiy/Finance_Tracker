@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.UserService;
-import ru.vgd.tracker.service.dto.UserRegisterRequest;
-import ru.vgd.tracker.service.dto.UserRegisterResult;
+import ru.vgd.tracker.service.dto.user.UserRegisterRequest;
+import ru.vgd.tracker.service.dto.user.UserRegisterResult;
 
 /**
  * Контроллер аутентификации и регистрации.
@@ -70,6 +70,6 @@ public class AuthController {
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context
         );
 
-        return "redirect:/accounts";
+        return "redirect:/";
     }
 }

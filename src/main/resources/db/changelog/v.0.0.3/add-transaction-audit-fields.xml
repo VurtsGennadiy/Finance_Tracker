@@ -36,7 +36,7 @@
                                  referencedTableName="transactions"
                                  referencedColumnNames="transaction_id"
                                  deferrable="true" initiallyDeferred="true"
-                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+                                 onDelete="SET NULL" onUpdate="CASCADE"/>
         
         <!-- Индекс для transaction_date -->
         <createIndex tableName="transactions" indexName="idx_transactions_transaction_date">

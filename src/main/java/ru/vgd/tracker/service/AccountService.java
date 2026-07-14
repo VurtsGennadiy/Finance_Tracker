@@ -6,14 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
-import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
-import ru.vgd.tracker.exception.AccountDeleteException;
-import ru.vgd.tracker.service.dto.AccountCreateRequest;
-import ru.vgd.tracker.service.dto.TransactionCreateRequest;
-import ru.vgd.tracker.util.mapper.AccountMapper;
 import ru.vgd.tracker.exception.AccessDeniedException;
 import ru.vgd.tracker.exception.ItemNotFoundException;
+import ru.vgd.tracker.service.dto.account.AccountCreateRequest;
+import ru.vgd.tracker.service.dto.account.AccountDto;
+import ru.vgd.tracker.util.mapper.AccountMapper;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,8 +32,9 @@ public class AccountService {
      * Получить все счета пользователя
      */
     @Transactional(readOnly = true)
-    public List<Account> getUserAccounts(UUID userId) {
-        return accountRepository.findAllByOwnersId(userId);
+    public List<AccountDto> getUserAccounts(UUID userId) {
+        List<Account> accounts = accountRepository.findAllByOwnersId(userId);
+        return accountMapper.toDto(accounts);
     }
 
     /**
@@ -55,7 +54,7 @@ public class AccountService {
      * Создать новый счёт
      */
     @Transactional
-    public Account createAccount(AccountCreateRequest request, User owner) {
+    public void createAccount(AccountCreateRequest request, User owner) {
         log.debug("Запрос на создание нового счёта. ownerId: {}, request: {}", owner.getId(), request);
 
         if (accountRepository.existsByOwnersIdAndName(owner.getId(), request.getName())) {
@@ -75,25 +74,14 @@ public class AccountService {
 
         // Создание транзакции для начальной суммы на счёте
         if (!Objects.equals(request.getBalance(), BigDecimal.ZERO)) {
-            TransactionCreateRequest transaction = new TransactionCreateRequest();
-            transaction.setAccountId(account.getId());
-            transaction.setDescription("Начальный баланс");
-            transaction.setAmount(request.getBalance().abs());
-
-            transaction.setCategory(ru.vgd.tracker.dal.transaction.Category.INCOME_OTHER);
-            if (request.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-                transaction.setCategory(Category.INCOME_OTHER);
-                transactionService.createIncomeTransaction(transaction, owner);
-            } else {
-                transaction.setCategory(Category.EXPENSE_OTHER);
-                transactionService.createExpenseTransaction(transaction, owner);
-            }
+            transactionService.createAccountInitialTransaction(account);
         }
-        return account;
     }
 
     /**
-     * Удаление счёта
+     * Удаление счёта.
+     * Счёт удаляется вместе со всеми транзакциями. Для связанных транзакций устанавливается значение related_transaction_id = NULL
+     * Если пользователь единственный владелец, то счёт удаляется. Иначе пользователь удаляется из списка владельцев счёта.
      */
     @Transactional
     public void deleteAccount(UUID accountId, User user) {
@@ -105,10 +93,6 @@ public class AccountService {
         Set<User> owners = account.getOwners();
         if (!owners.contains(user)) {
             throw new AccessDeniedException("Нет прав для доступа к этому счёту");
-        }
-
-        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
-            throw new AccountDeleteException("Удаление счёта с ненулевым балансом запрещено");
         }
 
         if (owners.size() == 1) {

@@ -1,0 +1,53 @@
+flowchart TD
+    subgraph MainController
+        main[/"GET /<br/>Главная страница<br/>index.html"/]
+    end
+
+    subgraph TransactionsController
+        getTransactions[/"GET /transactions"<br/>Показать страницу операций по счетам пользователя<br/>transactions/list.html/]
+        createIncome["POST /transactions/income<br/>Внести доход"]
+        createExpense["POST /transactions/expense<br/>Внести расход"]
+        createTransfer["POST /transactions/transfer<br/>Внести перевод"]
+        recentUndo["POST /transactions/recent/undo<br/>Отмена последней операции"]
+
+    end
+
+    subgraph AccountsController
+        getAccount{{"GET /accounts/{accountId}<br/>Показать страницу с информацией о счете"<br/>accounts/details.html}}
+        getAccountsCreate[/"GET /accounts/create<br/>Показать форму для создания нового счета"<br/>accounts/create.html/]
+        postAccountsCreate["POST /accounts/create<br/>Обработка формы для создания нового счёта"]
+    end
+
+%% Прямые переходы из index.html
+    main -->|"Модалка 'Доход'"| createIncome
+    main -->|"Модалка 'Расход'"| createExpense
+    main -->|"Модалка 'Перевод'"| createTransfer
+    main -->|"Кнопка 'Отменить'"| recentUndo
+    main -->|"Кнопка 'Новый счёт'"| getAccountsCreate
+    main -->|"Кнопка 'Все операции'"| getTransactions
+    main -->|"Клик по карточке счёта"| getAccount
+
+%% Обратные переходы из index.html (redirect после обработки)
+    createIncome -.->|"Redirect"| main
+    createExpense -.->|"Redirect"| main
+    createTransfer -.->|"Redirect"| main
+    recentUndo -.->|"Redirect"| main
+
+%% Прямые переходы из accounts
+    getAccountsCreate -->|"Кнопка 'Создать счёт'"| postAccountsCreate
+    getAccount --> |"Модалка 'Внести доход'"| createIncome
+    getAccount --> |"Модалка 'Внести расход'"| createExpense
+    getAccount --> |"Модалка 'Внести перевод'"| createTransfer
+    createIncome -.->|"Redirect"| getAccount
+    createExpense -.->|"Redirect"| getAccount
+    createTransfer -.->|"Redirect"| getAccount
+
+%% Обратные переходы из accounts
+    postAccountsCreate -.->|"Redirect"| main
+
+%% Стили
+    style main fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    style createIncome fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    style createExpense fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff
+    style createTransfer fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
+    style recentUndo fill:#F44336,stroke:#333,stroke-width:2px,color:#fff

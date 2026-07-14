@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.dal.user.UserRepository;
-import ru.vgd.tracker.service.dto.UserRegisterRequest;
-import ru.vgd.tracker.service.dto.UserRegisterResult;
+import ru.vgd.tracker.service.dto.user.UserRegisterRequest;
+import ru.vgd.tracker.service.dto.user.UserRegisterResult;
 
 import java.util.ArrayList;
 import java.util.List;

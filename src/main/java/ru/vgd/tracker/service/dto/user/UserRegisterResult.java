@@ -1,4 +1,4 @@
-package ru.vgd.tracker.service.dto;
+package ru.vgd.tracker.service.dto.user;
 
 import ru.vgd.tracker.dal.user.User;
 
