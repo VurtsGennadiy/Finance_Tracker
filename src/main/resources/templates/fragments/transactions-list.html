@@ -3,17 +3,10 @@
         <div class="card-body p-0">
             <div class="list-group list-group-flush">
                 <div th:each="transaction : ${transactions}" class="list-group-item operation-item">
-                    <div class="row align-items-center">
 
-                        <!-- Дата операции -->
-                        <div class="col-auto">
-                            <div class="text-muted small" th:text="${#temporals.format(transaction.transactionDate, 'dd.MM.yyyy')}">
-                                01.01.2026
-                            </div>
-                        </div>
-
-                        <!-- Категория и комментарий -->
-                        <div class="col">
+                    <!-- Строка 1: Категория и Сумма -->
+                    <div class="row mb-1">
+                        <div class="col-7">
                             <div class="fw-bold"
                                  th:if="${transaction.category != null}"
                                  th:classappend="${transaction.category.incomeCategory ? 'transaction-income' : 'transaction-expense'}"
@@ -26,11 +19,8 @@
                                  th:text="${transaction.type.displayName}">
                                 Перевод
                             </div>
-                            <div class="text-muted small" th:text="${transaction.description}">Описание</div>
                         </div>
-
-                        <!-- Сумма и счёт -->
-                        <div class="col-auto text-end">
+                        <div class="col-5 text-end">
                             <div class="fw-bold"
                                  th:if="${transaction.type.name() == 'INITIAL'}"
                                  th:classappend="transaction-transfer"
@@ -42,8 +32,28 @@
                                  th:text="${(transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
                                 -1 000,00 ₽
                             </div>
-                            <div class="text-muted small" th:text="${transaction.accountName}">
+                        </div>
+                    </div>
+
+                    <!-- Строка 2: Дата и Имя счёта -->
+                    <div class="row mb-1">
+                        <div class="col-4">
+                            <div class="text-muted small" th:text="${#temporals.format(transaction.transactionDate, 'dd.MM.yyyy')}">
+                                01.01.2026
+                            </div>
+                        </div>
+                        <div class="col-8 text-end">
+                            <div class="text-muted small text-truncate" th:text="${transaction.accountName}">
                                 Название счёта
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Строка 3: Комментарий (на всю ширину) -->
+                    <div class="row" th:if="${transaction.description != null and not #strings.isEmpty(transaction.description)}">
+                        <div class="col-12">
+                            <div class="text-muted small" th:text="${transaction.description}">
+                                Описание операции
                             </div>
                         </div>
                     </div>

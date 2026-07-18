@@ -16,11 +16,13 @@
         <a class="navbar-brand fw-bold" th:href="@{/}">
             <i class="bi bi-wallet2 me-2"></i>Wallet Control
         </a>
-        <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
-            <span class="navbar-text text-light" th:text="${username}">user</span>
-            <form th:action="@{/logout}" method="post" class="d-inline">
-                <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
-            </form>
+        <div class="navbar-nav ms-auto">
+            <div class="d-flex align-items-center flex-nowrap gap-2">
+                <span class="navbar-text text-light me-2" th:text="${username}">user</span>
+                <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                    <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>
