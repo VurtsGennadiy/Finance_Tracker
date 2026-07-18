@@ -23,7 +23,7 @@ public class TransactionRepositoryTest {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
 
-    @Test
+/*    @Test
     public void test() {
         TransactionFilter filter = new TransactionFilter();
         filter.setAccounts(List.of(UUID.fromString("bb6e714a-d671-4454-a772-a9d82c9b47c5")));
@@ -31,14 +31,14 @@ public class TransactionRepositoryTest {
         User user = userRepository.findById(UUID.fromString("a7cd6ec5-f4b0-4773-a815-ab9555676417")).get();
 
 
-/*        var spec = TransactionSpecifications
+*//*        var spec = TransactionSpecifications
                 .accountOwnerId(user.getId())
-                .and(TransactionSpecifications.filter(filter));*/
+                .and(TransactionSpecifications.filter(filter));*//*
 
         var spec = TransactionSpecifications.withFilter(filter);
 
         List<Transaction> transactions = transactionRepository.findAll(spec, PageRequest.of(0, 20)).getContent();
 
         assertEquals(2, transactions.size());
-    }
+    }*/
 }

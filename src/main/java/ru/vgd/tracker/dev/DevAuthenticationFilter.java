@@ -27,7 +27,7 @@ public class DevAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var principal = userDetailsService.loadUserByUsername("superuser");
+        var principal = userDetailsService.loadUserByUsername("user");
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 principal, null, principal.getAuthorities()

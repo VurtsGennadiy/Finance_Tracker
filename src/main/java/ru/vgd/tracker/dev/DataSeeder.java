@@ -1,29 +1,29 @@
 package ru.vgd.tracker.dev;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ru.vgd.tracker.dal.account.entity.BankAccount;
-import ru.vgd.tracker.dal.account.entity.CardAccount;
-import ru.vgd.tracker.dal.account.entity.CardType;
-import ru.vgd.tracker.dal.account.entity.CashAccount;
+import ru.vgd.tracker.dal.account.entity.*;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.user.UserRepository;
 import ru.vgd.tracker.dal.user.User;
+import ru.vgd.tracker.dal.user.UserRole;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
 /**
- * Заполняет БД данными пользователя superuser
+ * Заполняет БД данными для пользователей admin и user
  */
 @Component
 @Profile("dev")
 @RequiredArgsConstructor
+@Slf4j
 public class DataSeeder implements ApplicationRunner {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
@@ -32,17 +32,30 @@ public class DataSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        final String username = "superuser";
+        createAdminUser();
+        createUser();
+    }
 
+    private void createUser() {
+        final String username = "user";
+        final String password = "user";
+
+        log.trace("Проверка существования аккаунта пользователя {}", username);
         if (userRepository.existsByUsername(username)) {
+            log.trace("Аккаунт пользователя существует {}", username);
             return;
         }
 
+        log.trace("Создание аккаунта пользователя");
         User user = new User();
         user.setUsername(username);
         user.setEmail(username + "@email.ru");
-        user.setPassword(passwordEncoder.encode("password"));
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRoles(Set.of(UserRole.USER));
+        userRepository.save(user);
+        log.info("Создан аккаунт пользователя");
 
+        log.trace("Создание счетов для пользователя {}", user);
         CashAccount cash = new CashAccount();
         cash.setName("Наличные");
         cash.setBalance(new BigDecimal("5000.00"));
@@ -72,7 +85,28 @@ public class DataSeeder implements ApplicationRunner {
         bank.setBalance(new BigDecimal("250000.00"));
         bank.setOwners(Set.of(user));
 
+        Set<Account> accounts = Set.of(cash, debit, credit, bank);
+        accountRepository.saveAll(accounts);
+        log.info("Создано {} счетов для пользователя {}", accounts.size(), username);
+    }
+
+    private void createAdminUser() {
+        final String username = "admin";
+        final String password = "admin";
+
+        log.trace("Проверка существования аккаунта пользователя {}", username);
+        if (userRepository.existsByUsername(username)) {
+            log.trace("Аккаунт пользователя ADMIN существует {}", username);
+            return;
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRoles(Set.of(UserRole.ADMIN));
+        user.setEmail(username + "@email.ru");
         userRepository.save(user);
-        accountRepository.saveAll(Set.of(cash, debit, credit, bank));
+
+        log.info("Аккаунт пользователя {} создан", username);
     }
 }

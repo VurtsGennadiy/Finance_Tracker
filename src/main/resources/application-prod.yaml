@@ -1,0 +1,28 @@
+server:
+  servlet:
+    session:
+      timeout: 2d
+
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: ${DB_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  web:
+    error:
+      include-message: never
+      include-stacktrace: never
+      include-exception: false
+
+  jpa:
+    show-sql: false
+
+  thymeleaf:
+    cache: true
+
+logging:
+  level:
+    root: INFO
+    ru.vgd.tracker: INFO

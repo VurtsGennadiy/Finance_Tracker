@@ -65,4 +65,15 @@ public enum Category {
                 EXPENSE_OTHER
         );
     }
+
+    /**
+     * Метод используется в thymeleaf шаблонах, для определения стиля отображения
+     */
+    public boolean isIncomeCategory() {
+        return getIncomeCategories().contains(this);
+    }
+
+    public boolean isExpenseCategory() {
+        return getExpenseCategories().contains(this);
+    }
 }

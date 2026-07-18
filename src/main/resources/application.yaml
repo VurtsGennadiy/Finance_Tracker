@@ -1,34 +1,21 @@
 spring:
   application:
-    name: Finance_Tracker
+    name: Wallet_Control
 
-  datasource:
-    driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB:finance}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:password}
+  web:
+    error:
+      whitelabel.enabled: false
+      path: /error
 
   jpa:
     hibernate:
       ddl-auto: none
     open-in-view: false
-    properties:
-      hibernate:
-        format_sql: false
-    show-sql: false
 
   liquibase:
     change-log: db/changelog/db.changelog-master.xml
 
-  thymeleaf:
-    cache: false
-
 logging:
-  level:
-    root: INFO
-    ru.vgd.tracker: INFO
-    org.zalando.logbook: DEBUG
-
   file:
     name: logs/${spring.application.name}.log
     logback:
