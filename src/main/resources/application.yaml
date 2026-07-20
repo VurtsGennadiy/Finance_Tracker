@@ -15,6 +15,19 @@ spring:
   liquibase:
     change-log: db/changelog/db.changelog-master.xml
 
+  mail:
+    host: smtp.mail.ru
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 logging:
   file:
     name: logs/${spring.application.name}.log

@@ -48,4 +48,7 @@ public class User {
 
     @ManyToMany(mappedBy = "owners", fetch = FetchType.LAZY)
     private Set<Account> accounts = new HashSet<>();
+
+    @Column(name = "confirmed_email", nullable = false)
+    private boolean confirmedEmail = false;
 }

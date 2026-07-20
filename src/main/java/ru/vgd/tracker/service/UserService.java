@@ -21,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailConfirmationService emailConfirmationService;
 
 
     /**
@@ -56,6 +57,7 @@ public class UserService {
 
         userRepository.save(user);
         log.info("Пользователь успешно зарегистрирован. userId: {}", user.getId());
+        emailConfirmationService.issueEmailConfirmToken(user);
         return new UserRegisterResult(Optional.of(user), List.of());
     }
 }
