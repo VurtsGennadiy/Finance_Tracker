@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.vgd.tracker.dal.account.entity.Account;
 
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,4 +52,7 @@ public class User {
 
     @Column(name = "confirmed_email", nullable = false)
     private boolean confirmedEmail = false;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -7,4 +7,5 @@
 
     <include relativeToChangelogFile="true" file="add-users-confirmed_email-field.xml"/>
     <include relativeToChangelogFile="true" file="create-table-email-confirmation-tokens.xml"/>
+    <include relativeToChangelogFile="true" file="add-users-created_at-field.xml"/>
 </databaseChangeLog>
