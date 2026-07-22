@@ -18,6 +18,14 @@ flowchart TD
         postAccountsCreate["POST /accounts/create<br/>Обработка формы для создания нового счёта"]
     end
 
+
+    subgraph EmailConfirmationController
+        email["email пользователя"]
+        confirmEmail[/"GET /email-confirm?token={token}"/]
+        resendLink["POST /email-confirm/resend"]
+    end
+
+
 %% Прямые переходы из index.html
     main -->|"Модалка 'Доход'"| createIncome
     main -->|"Модалка 'Расход'"| createExpense
@@ -26,12 +34,15 @@ flowchart TD
     main -->|"Кнопка 'Новый счёт'"| getAccountsCreate
     main -->|"Кнопка 'Все операции'"| getTransactions
     main -->|"Клик по карточке счёта"| getAccount
+    main -->|"status-message emailConfirmedWarning"| resendLink
 
-%% Обратные переходы из index.html (redirect после обработки)
+%% Обратные переходы в index.html (redirect после обработки)
     createIncome -.->|"Redirect"| main
     createExpense -.->|"Redirect"| main
     createTransfer -.->|"Redirect"| main
     recentUndo -.->|"Redirect"| main
+    confirmEmail -.->|"Redirect"| main
+    resendLink -.->|"Redirect"| main
 
 %% Прямые переходы из accounts
     getAccountsCreate -->|"Кнопка 'Создать счёт'"| postAccountsCreate
@@ -44,6 +55,8 @@ flowchart TD
 
 %% Обратные переходы из accounts
     postAccountsCreate -.->|"Redirect"| main
+
+    email -->|"Переход по ссылке"| confirmEmail
 
 %% Стили
     style main fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff

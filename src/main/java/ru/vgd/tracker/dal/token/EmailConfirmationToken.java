@@ -25,7 +25,7 @@ public class EmailConfirmationToken {
     @Column(name = "token", nullable = false)
     private UUID token;
 
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
     @Column(name = "created_at", nullable = false)

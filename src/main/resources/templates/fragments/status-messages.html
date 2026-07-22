@@ -1,0 +1,20 @@
+<!-- fragments/statusWarnings.html -->
+<div th:fragment="statusWarnings" class="row">
+    <div class="col-12">
+
+        <!-- Неподтвержденная почта -->
+        <div th:if="${emailConfirmedWarning}"
+             class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-envelope-exclamation me-2"></i>
+            Пожалуйста, подтвердите ваш email. Некоторые функции приложения могут быть недоступны.
+
+            <!-- Форма с кнопкой, стилизованной под ссылку -->
+            <form th:action="@{/email-confirm/resend}" method="post" style="display: inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-link alert-link p-0">Отправить письмо повторно</button>
+            </form>
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+</div>

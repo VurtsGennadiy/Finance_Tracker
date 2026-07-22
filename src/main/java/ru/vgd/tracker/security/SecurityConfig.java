@@ -35,7 +35,7 @@ public class SecurityConfig {
     public SecurityFilterChain webChain(HttpSecurity http) {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/webjars/**").permitAll()
+                        .requestMatchers("/login", "/register","/email-confirm","/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

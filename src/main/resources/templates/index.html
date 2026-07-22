@@ -12,6 +12,7 @@
 <div layout:fragment="content">
 
     <div class="container mt-4">
+        <div th:insert="~{fragments/status-messages :: statusWarnings}"></div>
         <div th:insert="~{fragments/flash-messages :: flashMessages}"></div>
         
         <!-- Total Balance -->

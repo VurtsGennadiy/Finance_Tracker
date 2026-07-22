@@ -1,6 +1,7 @@
 <!-- Flash Messages -->
-<div th:fragment="flashMessages" class="row mb-3">
+<div th:fragment="flashMessages" class="row">
     <div class="col-12">
+        <!-- Success -->
         <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle me-2"></i>
             <span th:text="${success}">Успех</span>
@@ -12,6 +13,20 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+        <!-- Info (Синий) -->
+        <div th:if="${info}" class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <span th:text="${info}">Информация</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Warning (Желтый) -->
+        <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <span th:text="${warning}">Предупреждение</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <!-- Validation Errors -->
         <div th:if="${validationErrors}" class="alert alert-danger alert-dismissible fade show" role="alert">
             <ul class="mb-0">
@@ -20,7 +35,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div th:if="${error} and ${#lists.isEmpty(validationErrors)}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <!-- Error (Красный) -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-x-circle me-2"></i>
             <span th:text="${error}">Ошибка</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

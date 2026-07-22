@@ -52,6 +52,9 @@ public class MainController {
         model.addAttribute("transactionCreateRequest", new TransactionCreateRequest(accountId));
         model.addAttribute("transferCreateRequest", new TransferCreateRequest(accountId));
 
+        if (!principal.getUser().isConfirmedEmail()) {
+            model.addAttribute("emailConfirmedWarning", true);
+        }
         return "index";
     }
 }
