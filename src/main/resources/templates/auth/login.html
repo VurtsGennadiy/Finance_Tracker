@@ -35,11 +35,6 @@
             Неверный логин или пароль
         </div>
 
-        <!-- Успешный выход -->
-        <div th:if="${param.logout}" class="alert alert-info" role="alert">
-            Вы успешно вышли из аккаунта
-        </div>
-
         <form th:action="@{/login}" method="post">
             <div class="mb-3">
                 <label for="username" class="form-label">Имя пользователя</label>

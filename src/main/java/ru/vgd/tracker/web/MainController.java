@@ -55,6 +55,10 @@ public class MainController {
         if (!principal.getUser().isConfirmedEmail()) {
             model.addAttribute("emailConfirmedWarning", true);
         }
+
+        if (accounts.isEmpty()) {
+            model.addAttribute("noAccountsInfo", true);
+        }
         return "index";
     }
 }
