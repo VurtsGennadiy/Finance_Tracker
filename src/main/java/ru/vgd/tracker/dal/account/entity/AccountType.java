@@ -6,7 +6,10 @@ import lombok.Getter;
 public enum AccountType {
     BANK("Банковский"),
     CARD("Карта"),
-    CASH("Наличные");
+    CASH("Наличные"),
+    LOAN("Займ"),
+    CREDIT_CARD("Кредитная карта"),
+    DEBIT_CARD("Дебетовая карта");
 
     private final String displayName;
 

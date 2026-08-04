@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-accounts_loan-table" author="VurtsGD">
+        <comment>Создание таблицы для долговых счетов счетов</comment>
+        <createTable tableName="accounts_loan">
+            <column name="account_id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="accounts_loan"
+                                 baseColumnNames="account_id"
+                                 constraintName="fk_accounts_loan_base"
+                                 referencedTableName="accounts_base"
+                                 referencedColumnNames="account_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

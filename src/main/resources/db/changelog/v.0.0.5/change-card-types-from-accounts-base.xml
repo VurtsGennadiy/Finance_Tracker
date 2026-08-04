@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="change-card-types-from-accounts-base" author="VurtsGD">
+        <comment>Изменение поля card_type в таблице accounts-base для типа card</comment>
+        <sql>
+            UPDATE accounts_base
+            SET account_type = 'DEBIT_CARD'
+            WHERE EXISTS (
+                SELECT 1
+                FROM accounts_card_debit
+                WHERE accounts_card_debit.account_id = accounts_base.account_id
+            );
+        </sql>
+
+        <sql>
+            UPDATE accounts_base
+            SET account_type = 'CREDIT_CARD'
+            WHERE EXISTS (
+                SELECT 1
+                FROM accounts_card_credit
+                WHERE accounts_card_credit.account_id = accounts_base.account_id
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

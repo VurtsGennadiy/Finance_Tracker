@@ -9,19 +9,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Наличные деньги
+ * Денежный займ.
+ * Положительный баланс - мне должны. Отрицательный баланс - я должен.
  */
 @Entity
-@Table(name = "accounts_cash")
-@DiscriminatorValue("CASH")
+@Table(name = "accounts_loan")
+@DiscriminatorValue("LOAN")
 @PrimaryKeyJoinColumn(name = "account_id")
 @Getter
 @Setter
 @NoArgsConstructor
-public class CashAccount extends Account {
+public class LoanAccount extends Account {
 
     @Override
     boolean isCreditAccount() {
-        return false;
+        return true;
     }
 }

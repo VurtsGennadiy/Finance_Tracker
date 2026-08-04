@@ -51,4 +51,10 @@ public abstract class Account {
     @Column(name = "account_type", insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
+
+    /**
+     * Определение, является ли счёт кредитным.
+     * @return true если счёт кредитный, false если счёт не кредитный
+     */
+    abstract boolean isCreditAccount();
 }

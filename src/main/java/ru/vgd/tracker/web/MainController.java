@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.entity.AccountType;
 import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.security.SecurityUser;

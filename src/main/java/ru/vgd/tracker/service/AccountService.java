@@ -66,6 +66,8 @@ public class AccountService {
             case BANK -> accountMapper.toBankAccount(request, Set.of(owner));
             case CARD -> accountMapper.toCardAccount(request, Set.of(owner));
             case CASH -> accountMapper.toCashAccount(request, Set.of(owner));
+            // TODO
+            default -> throw new IllegalStateException();
         };
 
         accountRepository.save(account);
