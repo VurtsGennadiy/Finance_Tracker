@@ -28,6 +28,7 @@ public enum Category {
     EXPENSE_ENTERTAINMENT("Развлечения"),
     EXPENSE_EDUCATION("Образование"),
     EXPENSE_GIFT("Подарок"),
+    EXPENSE_DIGITAL("Цифровые сервисы"),
     EXPENSE_OTHER("Другие расходы");
 
     private final String displayName;
@@ -62,6 +63,7 @@ public enum Category {
                 EXPENSE_ENTERTAINMENT,
                 EXPENSE_EDUCATION,
                 EXPENSE_GIFT,
+                EXPENSE_DIGITAL,
                 EXPENSE_OTHER
         );
     }

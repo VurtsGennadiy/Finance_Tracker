@@ -3,7 +3,7 @@ services:
     image: postgres:18
     container_name: wallet_postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - ./volumes/postgres:/var/lib/postgresql
       - ./scripts/init-db:/docker-entrypoint-initdb.d
@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   app:
-    image: walletcontrol:0.0.3
+    image: walletcontrol:0.0.4
     container_name: wallet_app
     ports:
       - "8080:8080"
@@ -31,6 +31,8 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - ADMIN_USERNAME=${ADMIN_USERNAME}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
