@@ -1,15 +1,14 @@
 package ru.vgd.tracker.dal.transaction;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.user.User;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 /**
@@ -19,6 +18,9 @@ import java.util.UUID;
 @Table(name = "transactions")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Transaction {
 
@@ -50,12 +52,13 @@ public class Transaction {
      * Время создания записи в БД.
      */
     @Column(name = "created_at", nullable = false)
-    private ZonedDateTime createdAt;
+    private Instant createdAt;
 
     /**
      * Дата совершения транзакции.
      */
     @Column(name = "transaction_date", nullable = false)
+    @Builder.Default
     private LocalDate transactionDate = LocalDate.now();
 
     /**
@@ -76,13 +79,13 @@ public class Transaction {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = ZonedDateTime.now();
+        this.createdAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
     }
 
     /**
      * Возвращает timestamp в миллисекундах для клиентской локализации
      */
     public Long getCreatedAtTimestamp() {
-        return createdAt != null ? createdAt.toInstant().toEpochMilli() : null;
+        return createdAt != null ? createdAt.toEpochMilli() : null;
     }
 }

@@ -1,9 +1,11 @@
 package ru.vgd.tracker.dal.account.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
@@ -13,6 +15,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class CreditCardAccount extends Account {
     @Column(name = "bank_name", nullable = false)
     private String bankName;
@@ -24,7 +28,7 @@ public class CreditCardAccount extends Account {
     private BigDecimal creditLimit;
 
     @Override
-    boolean isCreditAccount() {
+    public boolean isCreditAccount() {
         return true;
     }
 }

@@ -1,11 +1,8 @@
 package ru.vgd.tracker.dal.account.entity;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ru.vgd.tracker.dal.user.User;
 
 import java.math.BigDecimal;
@@ -23,6 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = "owners")
 public abstract class Account {
@@ -46,6 +44,7 @@ public abstract class Account {
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @Builder.Default
     private Set<User> owners = new HashSet<>();
 
     @Column(name = "account_type", insertable = false, updatable = false)
@@ -56,5 +55,5 @@ public abstract class Account {
      * Определение, является ли счёт кредитным.
      * @return true если счёт кредитный, false если счёт не кредитный
      */
-    abstract boolean isCreditAccount();
+    public abstract boolean isCreditAccount();
 }

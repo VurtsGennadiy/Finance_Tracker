@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Наличные деньги
@@ -18,10 +19,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 public class CashAccount extends Account {
 
     @Override
-    boolean isCreditAccount() {
+    public boolean isCreditAccount() {
         return false;
     }
 }

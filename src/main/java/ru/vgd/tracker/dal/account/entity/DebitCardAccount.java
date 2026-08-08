@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "accounts_card_debit")
@@ -14,6 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 public class DebitCardAccount extends Account {
     @Column(name = "bank_name", nullable = false)
     private String bankName;
@@ -22,7 +24,7 @@ public class DebitCardAccount extends Account {
     private String cardNumber;
 
     @Override
-    boolean isCreditAccount() {
+    public boolean isCreditAccount() {
         return false;
     }
 }

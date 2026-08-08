@@ -17,11 +17,11 @@ import java.math.BigDecimal;
 /**
  * Банковская карта. Может быть дебетовой или кредитной
  */
-// TODO разделить на два типа счетов
-@Entity
+// TODO выпилить
+/*@Entity
 @Table(name = "accounts_card")
 @DiscriminatorValue("CARD")
-@PrimaryKeyJoinColumn(name = "account_id")
+@PrimaryKeyJoinColumn(name = "account_id")*/
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,7 +42,7 @@ public class CardAccount extends Account {
     private BigDecimal creditLimit;
 
     @Override
-    boolean isCreditAccount() {
+    public boolean isCreditAccount() {
         return false;
     }
 }

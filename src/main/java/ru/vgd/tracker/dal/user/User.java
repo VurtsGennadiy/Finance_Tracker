@@ -1,11 +1,7 @@
 package ru.vgd.tracker.dal.user;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.vgd.tracker.dal.account.entity.Account;
 
 import java.time.LocalDateTime;
@@ -22,6 +18,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = "accounts")
 public class User {
@@ -45,14 +43,18 @@ public class User {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Set<UserRole> roles = EnumSet.of(UserRole.USER);
 
+    @Builder.Default
     @ManyToMany(mappedBy = "owners", fetch = FetchType.LAZY)
     private Set<Account> accounts = new HashSet<>();
 
+    @Builder.Default
     @Column(name = "confirmed_email", nullable = false)
     private boolean confirmedEmail = false;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

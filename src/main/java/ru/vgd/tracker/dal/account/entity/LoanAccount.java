@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Денежный займ.
@@ -19,10 +20,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@SuperBuilder
 public class LoanAccount extends Account {
 
     @Override
-    boolean isCreditAccount() {
+    public boolean isCreditAccount() {
         return true;
     }
 }

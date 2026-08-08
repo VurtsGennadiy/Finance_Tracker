@@ -1,14 +1,10 @@
 package ru.vgd.tracker.dal.account.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Счёт в банке, например накопительный или вклад
@@ -20,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@SuperBuilder
 public class BankAccount extends Account {
 
     @Column(name = "bank_name", nullable = false)
@@ -30,7 +26,7 @@ public class BankAccount extends Account {
     private String accountNumber;
 
     @Override
-    boolean isCreditAccount() {
+    public boolean isCreditAccount() {
         return false;
     }
 }

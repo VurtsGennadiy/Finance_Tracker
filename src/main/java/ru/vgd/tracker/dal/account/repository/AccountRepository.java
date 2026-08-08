@@ -6,18 +6,13 @@ import org.springframework.data.repository.query.Param;
 import ru.vgd.tracker.dal.account.entity.Account;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     List<Account> findAllByOwnersId(UUID ownerId);
 
     boolean existsByOwnersIdAndName(UUID ownerId, String name);
-
-    Optional<Account> findById(UUID id);
-
-    Optional<Account> findByIdAndOwnersId(UUID id, UUID ownerId);
 
     @Query(value = "SELECT EXISTS(SELECT 1 FROM account_owners WHERE user_id = :userId AND account_id = :accountId)",
             nativeQuery = true)
