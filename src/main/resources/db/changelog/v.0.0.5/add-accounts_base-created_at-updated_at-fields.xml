@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add-accounts_base-created_at-field" author="VurtsGD">
+        <comment>Добавление поля created_at в таблицу accounts_base</comment>
+        <addColumn tableName="accounts_base">
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </addColumn>
+
+        <update tableName="accounts_base">
+            <column name="created_at" valueDate="2026-07-15 00:00:00"/>
+        </update>
+
+        <addNotNullConstraint tableName="accounts_base" columnName="created_at"/>
+        <addDefaultValue tableName="accounts_base" columnName="created_at" defaultValueComputed="current_timestamp"/>
+    </changeSet>
+
+    <changeSet id="add-accounts_base-updated_at-field" author="VurtsGD">
+        <comment>Добавление поля updated_at в таблицу accounts_base</comment>
+        <addColumn tableName="accounts_base">
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </addColumn>
+
+        <update tableName="accounts_base">
+            <column name="updated_at" valueDate="2026-07-15 00:00:00"/>
+        </update>
+
+        <addNotNullConstraint tableName="accounts_base" columnName="updated_at"/>
+        <addDefaultValue tableName="accounts_base" columnName="updated_at" defaultValueComputed="current_timestamp"/>
+    </changeSet>
+
+
+    <changeSet id="add-set_updated_at-function" author="VurtsGD">
+        <comment>Создание функции для установки значения в поле updated_at</comment>
+        <sql endDelimiter="$$" splitStatements="false">
+            CREATE OR REPLACE FUNCTION set_updated_at()
+                RETURNS TRIGGER AS $$
+                    BEGIN
+                        NEW.updated_at := now();
+                        RETURN NEW;
+                    END;
+                $$ LANGUAGE plpgsql;
+        </sql>
+    </changeSet>
+
+    <changeSet id="add-accounts_base-updated_at-trigger" author="VurtsGD">
+        <comment>Добавление триггера в таблицу accounts_base на поле updated_at</comment>
+        <sql>
+            CREATE OR REPLACE TRIGGER "set_accounts_base_updated_at"
+                BEFORE UPDATE OF balance ON accounts_base
+                FOR EACH ROW
+                EXECUTE PROCEDURE set_updated_at();
+        </sql>
+    </changeSet>
+</databaseChangeLog>

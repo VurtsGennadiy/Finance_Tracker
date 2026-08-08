@@ -2,13 +2,14 @@ package ru.vgd.tracker.dal.transaction;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.user.User;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 /**
@@ -51,6 +52,7 @@ public class Transaction {
     /**
      * Время создания записи в БД.
      */
+    @CreationTimestamp(source = SourceType.DB)
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -76,11 +78,6 @@ public class Transaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "related_transaction_id")
     private Transaction relatedTransaction;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
-    }
 
     /**
      * Возвращает timestamp в миллисекундах для клиентской локализации

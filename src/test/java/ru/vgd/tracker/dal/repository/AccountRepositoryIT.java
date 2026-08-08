@@ -20,8 +20,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -69,6 +68,8 @@ public class AccountRepositoryIT {
         assertEquals(0, balance.compareTo(cashAccount.getBalance()));
         assertEquals(name, cashAccount.getName());
         assertEquals(Set.of(user), cashAccount.getOwners());
+        assertNotNull(loaded.getCreatedAt());
+        assertNotNull(loaded.getUpdatedAt());
     }
 
     @Test
@@ -100,6 +101,8 @@ public class AccountRepositoryIT {
         assertEquals(name, bankAccount.getName());
         assertEquals(bankName, bankAccount.getBankName());
         assertEquals(accountNumber, bankAccount.getAccountNumber());
+        assertNotNull(loaded.getCreatedAt());
+        assertNotNull(loaded.getUpdatedAt());
     }
 
     @Test
@@ -131,6 +134,8 @@ public class AccountRepositoryIT {
         assertEquals(name, debitCardAccount.getName());
         assertEquals(bankName, debitCardAccount.getBankName());
         assertEquals(cardNumber, debitCardAccount.getCardNumber());
+        assertNotNull(loaded.getCreatedAt());
+        assertNotNull(loaded.getUpdatedAt());
     }
 
     @Test
@@ -164,6 +169,8 @@ public class AccountRepositoryIT {
         assertEquals(bankName, creditCardAccount.getBankName());
         assertEquals(cardNumber, creditCardAccount.getCardNumber());
         assertEquals(0, creditLimit.compareTo(creditCardAccount.getCreditLimit()));
+        assertNotNull(loaded.getCreatedAt());
+        assertNotNull(loaded.getUpdatedAt());
     }
 
     @Test
@@ -189,5 +196,7 @@ public class AccountRepositoryIT {
         assertEquals(Set.of(user), loanAccount.getOwners());
         assertEquals(0, balance.compareTo(loanAccount.getBalance()));
         assertEquals(name, loanAccount.getName());
+        assertNotNull(loaded.getCreatedAt());
+        assertNotNull(loaded.getUpdatedAt());
     }
 }

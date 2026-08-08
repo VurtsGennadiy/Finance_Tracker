@@ -3,9 +3,13 @@ package ru.vgd.tracker.dal.account.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
+import org.hibernate.annotations.UpdateTimestamp;
 import ru.vgd.tracker.dal.user.User;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +54,14 @@ public abstract class Account {
     @Column(name = "account_type", insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
+
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp(source = SourceType.DB)
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp(source = SourceType.DB)
+    private Instant updatedAt;
 
     /**
      * Определение, является ли счёт кредитным.

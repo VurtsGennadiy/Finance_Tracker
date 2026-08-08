@@ -2,9 +2,11 @@ package ru.vgd.tracker.dal.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 import ru.vgd.tracker.dal.account.entity.Account;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +56,7 @@ public class User {
     @Column(name = "confirmed_email", nullable = false)
     private boolean confirmedEmail = false;
 
-    @Builder.Default
+    @CreationTimestamp(source = SourceType.DB)
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
 }

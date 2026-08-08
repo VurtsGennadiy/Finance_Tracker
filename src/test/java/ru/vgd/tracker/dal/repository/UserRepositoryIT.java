@@ -71,6 +71,7 @@ public class UserRepositoryIT {
         assertEquals(roles, loaded.getRoles());
         assertFalse(loaded.isConfirmedEmail());
         assertEquals(0, loaded.getAccounts().size());
+        assertNotNull(loaded.getCreatedAt());
     }
 
     @Test

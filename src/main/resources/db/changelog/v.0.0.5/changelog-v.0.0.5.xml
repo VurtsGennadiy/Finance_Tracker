@@ -9,4 +9,5 @@
     <include relativeToChangelogFile="true" file="create-accounts_credit_card-table.xml"/>
     <include relativeToChangelogFile="true" file="drop-accounts-card-table.xml"/>
     <include relativeToChangelogFile="true" file="change-card-types-from-accounts-base.xml"/>
+    <include relativeToChangelogFile="true" file="add-accounts_base-created_at-updated_at-fields.xml"/>
 </databaseChangeLog>

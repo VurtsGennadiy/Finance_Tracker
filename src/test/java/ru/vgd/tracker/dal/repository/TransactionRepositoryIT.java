@@ -24,8 +24,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -66,6 +65,7 @@ public class TransactionRepositoryIT {
         assertEquals(transaction.getType(), loaded.getType());
         assertEquals(transaction.getCategory(), loaded.getCategory());
         assertEquals(transaction.getDescription(), loaded.getDescription());
+        assertNotNull(transaction.getCreatedAt());
         assertEquals(transaction.getCreatedAt(), loaded.getCreatedAt());
         assertEquals(transaction.getTransactionDate(), loaded.getTransactionDate());
         assertEquals(transaction.getAccount().getId(), loaded.getAccount().getId());
