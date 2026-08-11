@@ -5,24 +5,26 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldDefaults;
 import ru.vgd.tracker.dal.account.entity.AccountType;
-import ru.vgd.tracker.dal.account.entity.BankAccount;
 
 import java.math.BigDecimal;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BankAccountDto extends AccountDto {
-    String bankName;
-    String accountNumber;
+public class CreditCardAccountDto extends AccountDto {
 
-    public BankAccountDto() {
+    String bankName;
+    String cardNumber;
+    BigDecimal creditLimit;
+
+    public CreditCardAccountDto() {
         super();
-        setAccountType(AccountType.BANK);
+        setAccountType(AccountType.CREDIT_CARD);
     }
 
-    public BankAccountDto(BigDecimal balance) {
+    public CreditCardAccountDto(BigDecimal balance, BigDecimal creditLimit) {
         super(balance);
-        setAccountType(AccountType.BANK);
+        setAccountType(AccountType.CREDIT_CARD);
+        this.creditLimit = creditLimit;
     }
 }

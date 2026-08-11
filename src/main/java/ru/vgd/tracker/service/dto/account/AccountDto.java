@@ -22,4 +22,11 @@ public abstract class AccountDto {
     BigDecimal balance;
 
     AccountType accountType;
+
+    public AccountDto() {
+    }
+
+    public AccountDto(BigDecimal balance) {
+        this.balance = balance;
+    }
 }

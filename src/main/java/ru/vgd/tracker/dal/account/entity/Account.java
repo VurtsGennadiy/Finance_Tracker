@@ -40,6 +40,7 @@ public abstract class Account {
 
     @Column(name = "balance", nullable = false)
     @EqualsAndHashCode.Include
+    @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToMany(fetch = FetchType.LAZY)

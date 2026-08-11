@@ -8,15 +8,15 @@ import java.math.BigDecimal;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CashAccountDto extends AccountDto {
+public class LoanAccountDto extends AccountDto {
 
-    public CashAccountDto() {
+    public LoanAccountDto() {
         super();
-        setAccountType(AccountType.CASH);
+        setAccountType(AccountType.LOAN);
     }
 
-    public CashAccountDto(BigDecimal balance) {
+    public LoanAccountDto(BigDecimal balance) {
         super(balance);
-        setAccountType(AccountType.CASH);
+        setAccountType(AccountType.LOAN);
     }
 }

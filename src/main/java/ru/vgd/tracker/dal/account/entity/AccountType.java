@@ -4,16 +4,18 @@ import lombok.Getter;
 
 @Getter
 public enum AccountType {
-    BANK("Банковский"),
-    CARD("Карта"),
-    CASH("Наличные"),
-    LOAN("Займ"),
-    CREDIT_CARD("Кредитная карта"),
-    DEBIT_CARD("Дебетовая карта");
+    BANK("Банковский", false),
+    CARD("Карта", false),
+    CASH("Наличные", false),
+    LOAN("Займ", true),
+    CREDIT_CARD("Кредитная карта", true),
+    DEBIT_CARD("Дебетовая карта", false);
 
     private final String displayName;
+    private final boolean creditAccount;
 
-    AccountType(String displayName) {
+    AccountType(String displayName, boolean creditAccount) {
         this.displayName = displayName;
+        this.creditAccount = creditAccount;
     }
 }
