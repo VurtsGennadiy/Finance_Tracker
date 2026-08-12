@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.vgd.tracker.dal.account.entity.CardType;
+import ru.vgd.tracker.dal.account.entity.AccountType;
 import ru.vgd.tracker.dal.transaction.Category;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.ItemNotFoundException;
@@ -33,7 +33,6 @@ public class AccountController {
 
     private final AccountService accountService;
     private final TransactionService transactionService;
-
 
     /**
      * Отобразить страницу детальной информации по счёту
@@ -71,7 +70,7 @@ public class AccountController {
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("request", new AccountCreateRequest());
-        model.addAttribute("cardTypes", CardType.values());
+        model.addAttribute("accountTypes", AccountType.values());
         return "accounts/create";
     }
 
@@ -87,7 +86,7 @@ public class AccountController {
             RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("cardTypes", List.of(CardType.values()));
+            model.addAttribute("accountTypes", AccountType.values());
             return "accounts/create";
         }
 
@@ -97,7 +96,7 @@ public class AccountController {
             redirectAttributes.addFlashAttribute("success", "Счёт «" + request.getName() + "» успешно создан!");
             return "redirect:/";
         } catch (Exception e) {
-            model.addAttribute("cardTypes", List.of(CardType.values()));
+            model.addAttribute("accountTypes", AccountType.values());
             model.addAttribute("error", "Ошибка при создании счёта: " + e.getMessage());
             return "accounts/create";
         }

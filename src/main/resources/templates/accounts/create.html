@@ -30,9 +30,11 @@
                             <select class="form-select" id="accountType" th:field="*{accountType}"
                                     th:classappend="${#fields.hasErrors('accountType')} ? 'is-invalid'"
                                     onchange="toggleFields()">
-                                <option value="CASH">Наличные</option>
-                                <option value="BANK">Банковский счёт</option>
-                                <option value="CARD">Банковская карта</option>
+                                <option th:each="accountType : ${accountTypes}"
+                                        th:value="${accountType.name()}"
+                                        th:text="${accountType.displayName}">
+                                    Тип счёта
+                                </option>
                             </select>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('accountType')}" th:errors="*{accountType}"></div>
                         </div>
@@ -46,6 +48,18 @@
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                         </div>
 
+                        <!-- Название банка (Типы счёта: BANK, DEBIT_CARD, CREDIT_CARD -->
+                        <div id="bankNameField" style="display: none;">
+                            <div class="mb-3">
+                                <label for="bankName" class="form-label">Название банка *</label>
+                                <input type="text" class="form-control" id="bankName" th:field="*{bankName}"
+                                       th:classappend="${#fields.hasErrors('bankName') or #fields.hasErrors('bankNameValid')} ? 'is-invalid'"
+                                       placeholder="Например: Сбербанк" oninput="updateName()">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bankName')}" th:errors="*{bankName}"></div>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bankNameValid')}" th:errors="*{bankNameValid}"></div>
+                            </div>
+                        </div>
+
                         <!-- Баланс -->
                         <div class="mb-3">
                             <label for="balance" class="form-label">Начальный баланс</label>
@@ -55,16 +69,18 @@
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('balance')}" th:errors="*{balance}"></div>
                         </div>
 
-                        <!-- Поля для BANK -->
-                        <div id="bankFields" style="display: none;">
-                            <div class="mb-3">
-                                <label for="bankNameBank" class="form-label">Название банка *</label>
-                                <input type="text" class="form-control" id="bankNameBank" th:field="*{bankName}"
-                                       th:classappend="${#fields.hasErrors('bankName') or #fields.hasErrors('bankNameValid')} ? 'is-invalid'"
-                                       placeholder="Например: Сбербанк" oninput="updateName()">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bankName')}" th:errors="*{bankName}"></div>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bankNameValid')}" th:errors="*{bankNameValid}"></div>
-                            </div>
+                        <!-- Кредитный лимит (Тип счёта: CREDIT_CARD) -->
+                        <div class="mb-3" id="creditLimitField" style="display: none;">
+                            <label for="creditLimit" class="form-label">Кредитный лимит</label>
+                            <input type="number" step="0.01" class="form-control" id="creditLimit"
+                                   th:field="*{creditLimit}"
+                                   th:classappend="${#fields.hasErrors('creditLimit')} ? 'is-invalid'"
+                                   placeholder="0.00">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('creditLimit')}" th:errors="*{creditLimit}"></div>
+                        </div>
+
+                        <!-- Номер счёта (Тип счёта: BANK) -->
+                        <div id="accountNumberField" style="display: none;">
                             <div class="mb-3">
                                 <label for="accountNumber" class="form-label">Номер счёта. Можно ввести номер целиком или его часть, или вообще не заполнять</label>
                                 <input type="text" class="form-control" id="accountNumber" th:field="*{accountNumber}"
@@ -72,35 +88,12 @@
                             </div>
                         </div>
 
-                        <!-- Поля только для CARD -->
-                        <div id="cardFields" style="display: none;">
-                            <div class="mb-3">
-                                <label for="bankNameCard" class="form-label">Название банка *</label>
-                                <input type="text" class="form-control" id="bankNameCard" th:field="*{bankName}"
-                                       th:classappend="${#fields.hasErrors('bankName') or #fields.hasErrors('bankNameValid')} ? 'is-invalid'"
-                                       placeholder="Например: Сбербанк" oninput="updateName()">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bankName')}" th:errors="*{bankName}"></div>
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bankNameValid')}" th:errors="*{bankNameValid}"></div>
-                            </div>
+                        <!-- Номер карты (Типы счёта: DEBIT_CARD и CREDIT_CARD) -->
+                        <div id="cardNumberField" style="display: none;">
                             <div class="mb-3">
                                 <label for="cardNumber" class="form-label">Номер карты. Можно ввести номер целиком или его часть, или вообще не заполнять</label>
                                 <input type="text" class="form-control" id="cardNumber" th:field="*{cardNumber}"
-                                       placeholder="0000 0000 0000 0000">
-                            </div>
-                            <div class="mb-3">
-                                <label for="cardType" class="form-label">Тип карты</label>
-                                <select class="form-select" id="cardType" th:field="*{cardType}" onchange="toggleCreditLimit()">
-                                    <option th:each="ct : ${cardTypes}" th:value="${ct.name}" th:text="${ct.displayName}">DEBIT</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3" id="creditLimitGroup" style="display: none;">
-                                <label for="creditLimit" class="form-label">Кредитный лимит</label>
-                                <input type="number" step="0.01" class="form-control" id="creditLimit"
-                                       th:field="*{creditLimit}"
-                                       th:classappend="${#fields.hasErrors('creditLimit')} ? 'is-invalid'"
-                                       placeholder="0.00">
-                                <div class="invalid-feedback" th:if="${#fields.hasErrors('creditLimit')}" th:errors="*{creditLimit}"></div>
+                                       placeholder="0000000000000000">
                             </div>
                         </div>
 
@@ -112,69 +105,40 @@
     </div>
 
     <script>
-        const typeNames = {
-            'CASH': 'Наличные',
-            'BANK': 'Банковский счёт',
-            'CARD': 'Банковская карта'
-        };
-
         let nameManuallyEdited = false;
 
         function updateName() {
             if (nameManuallyEdited) return;
 
-            const type = document.getElementById('accountType').value;
-            const typeName = typeNames[type] || '';
-            const bankName = (document.getElementById('bankNameBank').value
-                || document.getElementById('bankNameCard').value).trim();
+            const selectType = document.getElementById('accountType');
+            const typeDisplayName = selectType.options[selectType.selectedIndex].text;
+
+            const bankName = document.getElementById('bankName').value;
             const nameField = document.getElementById('name');
 
-            if (!type) {
-                nameField.value = '';
-            } else if (bankName) {
-                nameField.value = typeName + ' ' + bankName;
+            if (bankName) {
+                nameField.value = typeDisplayName + ' ' + bankName;
             } else {
-                nameField.value = typeName;
-            }
-        }
-
-        // функция для управления видимостью кредитного лимита
-        function toggleCreditLimit() {
-            const cardTypeSelect = document.getElementById('cardType');
-            if (!cardTypeSelect) return;
-
-            const cardType = cardTypeSelect.value;
-            const creditLimitGroup = document.getElementById('creditLimitGroup');
-            const creditLimitInput = document.getElementById('creditLimit');
-
-            if (cardType === 'CREDIT') {
-                creditLimitGroup.style.display = 'block';
-                creditLimitInput.disabled = false; // Включаем, чтобы значение ушло на сервер
-            } else {
-                creditLimitGroup.style.display = 'none';
-                creditLimitInput.disabled = true;  // Отключаем, чтобы поле игнорировалось при отправке формы
-                creditLimitInput.value = '';       // Очищаем значение для чистоты данных
+                nameField.value = typeDisplayName;
             }
         }
 
         function toggleFields() {
+            const divBankNameField = document.getElementById('bankNameField');
+            const divAccountNumberField = document.getElementById('accountNumberField');
+            const divCardNumberField = document.getElementById('cardNumberField');
+            const divCreditLimitField = document.getElementById('creditLimitField');
+
             const type = document.getElementById('accountType').value;
-            const bankDiv = document.getElementById('bankFields');
-            const cardDiv = document.getElementById('cardFields');
 
-            bankDiv.style.display = (type === 'BANK') ? 'block' : 'none';
-            cardDiv.style.display = (type === 'CARD') ? 'block' : 'none';
-
-            // Отключаем поля в скрытых секциях, чтобы не отправлялись лишние данные
-            bankDiv.querySelectorAll('input, select').forEach(el => el.disabled = (type !== 'BANK'));
-            cardDiv.querySelectorAll('input, select').forEach(el => el.disabled = (type !== 'CARD'));
+            divBankNameField.style.display = (type === 'BANK' || type === 'DEBIT_CARD' || type === 'CREDIT_CARD') ? 'block' : 'none';
+            divAccountNumberField.style.display = (type === 'BANK') ? 'block' : 'none';
+            divCardNumberField.style.display = (type === 'DEBIT_CARD' || type === 'CREDIT_CARD') ? 'block' : 'none';
+            divCreditLimitField.style.display = (type === 'CREDIT_CARD') ? 'block' : 'none';
 
             // Сбрасываем флаг ручного редактирования при смене типа счёта
             nameManuallyEdited = false;
             updateName();
-
-            // Вызываем проверку кредитного лимита при смене основного типа счёта
-            toggleCreditLimit();
         }
 
         // Инициализация при загрузке страницы

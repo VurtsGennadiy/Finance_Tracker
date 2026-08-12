@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import ru.vgd.tracker.dal.account.entity.AccountType;
-import ru.vgd.tracker.dal.account.entity.CardType;
 
 import java.math.BigDecimal;
 
@@ -31,12 +30,10 @@ public class AccountCreateRequest {
 
     private String cardNumber;
 
-    private CardType cardType = CardType.DEBIT;
-
     @DecimalMin(value = "0.00", message = "Кредитный лимит не может быть отрицательным")
     private BigDecimal creditLimit = BigDecimal.ZERO;
 
-    @AssertTrue(message = "Название банка должно быть не пустым")
+    @AssertTrue(message = "Название банка не должно быть пустым")
     public boolean isBankNameValid() {
         if (accountType != AccountType.CASH) {
             if (bankName == null) return false;

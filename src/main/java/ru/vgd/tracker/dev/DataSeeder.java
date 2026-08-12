@@ -61,17 +61,15 @@ public class DataSeeder implements ApplicationRunner {
         cash.setBalance(new BigDecimal("5000.00"));
         cash.setOwners(Set.of(user));
 
-        CardAccount debit = new CardAccount();
+        DebitCardAccount debit = new DebitCardAccount();
         debit.setName("Зарплатная карта");
-        debit.setCardType(CardType.DEBIT);
         debit.setBankName("Т-Банк");
         debit.setCardNumber("1234567890");
         debit.setBalance(new BigDecimal("42000.50"));
         debit.setOwners(Set.of(user));
 
-        CardAccount credit = new CardAccount();
+        CreditCardAccount credit = new CreditCardAccount();
         credit.setName("Кредитка");
-        credit.setCardType(CardType.CREDIT);
         credit.setBankName("Сбербанк");
         credit.setCardNumber("0987654321");
         credit.setCreditLimit(new BigDecimal("150000.00"));

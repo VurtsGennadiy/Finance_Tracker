@@ -67,11 +67,11 @@ public class AccountServiceImpl implements AccountService {
         }
 
         Account account = switch (request.getAccountType()) {
-            case BANK -> accountMapper.toBankAccount(request, Set.of(owner));
-            case CARD -> accountMapper.toCardAccount(request, Set.of(owner));
             case CASH -> accountMapper.toCashAccount(request, Set.of(owner));
-            // TODO
-            default -> throw new IllegalStateException();
+            case BANK -> accountMapper.toBankAccount(request, Set.of(owner));
+            case DEBIT_CARD ->  accountMapper.toDebitCardAccount(request, Set.of(owner));
+            case CREDIT_CARD ->  accountMapper.toCreditCardAccount(request, Set.of(owner));
+            case LOAN ->  accountMapper.toLoanAccount(request, Set.of(owner));
         };
 
         accountRepository.save(account);

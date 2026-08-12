@@ -23,15 +23,24 @@ public interface AccountMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    CardAccount toCardAccount(AccountCreateRequest request, Set<User> owners);
+    CashAccount toCashAccount(AccountCreateRequest request, Set<User> owners);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    CashAccount toCashAccount(AccountCreateRequest request, Set<User> owners);
+    CreditCardAccount toCreditCardAccount(AccountCreateRequest request, Set<User> owners);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    DebitCardAccount toDebitCardAccount(AccountCreateRequest request, Set<User> owners);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    LoanAccount toLoanAccount(AccountCreateRequest request, Set<User> owners);
 
     @SubclassMapping(source = BankAccount.class, target = BankAccountDto.class)
-    @SubclassMapping(source = CardAccount.class, target = CardAccountDto.class)
     @SubclassMapping(source = CashAccount.class, target = CashAccountDto.class)
     @SubclassMapping(source = CreditCardAccount.class, target = CreditCardAccountDto.class)
     @SubclassMapping(source = DebitCardAccount.class, target = DebitCardAccountDto.class)
