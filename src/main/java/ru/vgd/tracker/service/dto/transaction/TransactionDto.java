@@ -14,17 +14,17 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TransactionDto {
 
-    private UUID id;
+    UUID id;
 
-    private String accountName;
+    String accountName;
 
-    private BigDecimal amount;
+    BigDecimal amount;
 
-    private TransactionType type;
+    TransactionType type;
 
-    private Category category;
+    Category category;
 
-    private String description;
+    String description;
 
-    private LocalDate transactionDate;
+    LocalDate transactionDate;
 }

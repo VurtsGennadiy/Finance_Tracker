@@ -1,4 +1,4 @@
-package ru.vgd.tracker.facade;
+package ru.vgd.tracker.facade.main;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +20,10 @@ public class MainFacadeImpl implements MainFacade {
     private final TransactionService transactionService;
 
     @Override
-    public MainPageDto getMainPageData(UUID userId) {
+    public MainPageResponse getMainPageData(UUID userId) {
         log.trace("Получение данных главной страницы для пользователя id: {}", userId);
 
-        MainPageDto result = new MainPageDto();
+        MainPageResponse result = new MainPageResponse();
         double availableBalance = 0d;
         double accountsReceivable = 0d;
         double accountsPayable = 0d;

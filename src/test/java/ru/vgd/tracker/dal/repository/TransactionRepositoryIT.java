@@ -21,7 +21,10 @@ import ru.vgd.tracker.dal.transaction.TransactionType;
 import ru.vgd.tracker.dal.user.UserRepository;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;

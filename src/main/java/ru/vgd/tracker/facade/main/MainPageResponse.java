@@ -1,4 +1,4 @@
-package ru.vgd.tracker.facade;
+package ru.vgd.tracker.facade.main;
 
 import lombok.Data;
 import ru.vgd.tracker.service.dto.account.AccountDto;
@@ -10,7 +10,7 @@ import java.util.List;
  * DTO для передачи данных главной страницы
  */
 @Data
-public class MainPageDto {
+public class MainPageResponse {
     Double totalBalance; // общий баланс
     Double availableBalance; // собственные доступные средства
     Double accountsReceivable; // дебиторская задолженность (сумма, которую должны пользователю)

@@ -4,10 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.user.User;
-import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
-import ru.vgd.tracker.service.dto.transaction.TransactionDto;
-import ru.vgd.tracker.service.dto.transaction.TransactionFilter;
-import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,4 +27,6 @@ public interface TransactionService {
     void cancelLastTransaction(UUID userId);
 
     void createAccountInitialTransaction(Account account);
+
+    TransactionSummaryDto getSummary(TransactionFilter filter);
 }

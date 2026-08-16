@@ -14,10 +14,7 @@ import ru.vgd.tracker.dal.transaction.*;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.ItemNotFoundException;
 import ru.vgd.tracker.service.TransactionService;
-import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
-import ru.vgd.tracker.service.dto.transaction.TransactionDto;
-import ru.vgd.tracker.service.dto.transaction.TransactionFilter;
-import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
+import ru.vgd.tracker.service.dto.transaction.*;
 import ru.vgd.tracker.util.mapper.TransactionMapper;
 
 import java.math.BigDecimal;
@@ -121,6 +118,7 @@ public class TransactionServiceImpl implements TransactionService {
      * @param accountId идентификатор счёта.
      * @return List<TransactionDto> из 5 последних транзакций отсортированных по дате совершения транзакции.
      */
+    // TODO проверка доступа
     @Override
     @Transactional(readOnly = true)
     public List<TransactionDto> getAccountLastTransactions(UUID accountId) {
@@ -141,6 +139,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toDto(transactions);
     }
 
+    // TODO проверка доступа
     @Override
     @Transactional(readOnly = true)
     public Page<TransactionDto> getTransactions(TransactionFilter filter, Pageable pageable) {
@@ -150,6 +149,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionPage.map(transactionMapper::toDto);
     }
 
+    // TODO проверка доступа
     @Override
     @Transactional
     public void cancelTransaction(UUID transactionId) {
@@ -193,6 +193,7 @@ public class TransactionServiceImpl implements TransactionService {
      * Отмена последней транзакции пользователя.
      * @param userId идентификатор пользователя, совершившего транзакцию.
      */
+    // TODO проверка доступа
     @Override
     @Transactional
     public void cancelLastTransaction(UUID userId) {
@@ -235,6 +236,22 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
 
         log.info("Сохранена начальная транзакция account Id: {}, transactionId: {}", account.getId(), transaction.getId());
+    }
+
+    // TODO проверка доступа
+    @Override
+    @Transactional(readOnly = true)
+    public TransactionSummaryDto getSummary(TransactionFilter filter) {
+        log.debug("Запрос сводки транзакций {}", filter);
+        BigDecimal incomes = transactionRepository.getIncomeTransactionsSum(
+                filter.getAccounts(), filter.getDateFrom(), filter.getDateTo()
+        );
+
+        BigDecimal expenses = transactionRepository.getExpenseTransactionsSum(
+                filter.getAccounts(), filter.getDateFrom(), filter.getDateTo()
+        );
+
+        return new TransactionSummaryDto(incomes, expenses);
     }
 
     private Account getAccountAndCheckOwner(UUID accountId, User user) {

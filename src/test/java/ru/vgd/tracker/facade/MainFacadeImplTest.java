@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vgd.tracker.facade.main.MainFacadeImpl;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
 import ru.vgd.tracker.service.dto.account.*;
@@ -44,7 +45,7 @@ public class MainFacadeImplTest {
         assertEquals(balance.subtract(creditLimit).doubleValue(), result.getAccountsPayable());
         assertEquals(0d, result.getAccountsReceivable());
         assertEquals(0d, result.getAvailableBalance());
-        assertEquals(balance.subtract(creditLimit).doubleValue(), result.totalBalance);
+        assertEquals(balance.subtract(creditLimit).doubleValue(), result.getTotalBalance());
     }
 
     @Test
@@ -62,7 +63,7 @@ public class MainFacadeImplTest {
         assertEquals(balance.subtract(creditLimit).doubleValue(), result.getAccountsReceivable());
         assertEquals(0d, result.getAccountsPayable());
         assertEquals(0d, result.getAvailableBalance());
-        assertEquals(balance.subtract(creditLimit).doubleValue(), result.totalBalance);
+        assertEquals(balance.subtract(creditLimit).doubleValue(), result.getTotalBalance());
     }
 
     @Test

@@ -3,7 +3,6 @@ package ru.vgd.tracker.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -16,18 +15,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import ru.vgd.tracker.dal.transaction.TransactionType;
 import ru.vgd.tracker.dal.user.User;
+import ru.vgd.tracker.facade.transaction.TransactionsFacade;
 import ru.vgd.tracker.security.SecurityUser;
-import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
-import ru.vgd.tracker.service.dto.account.AccountDto;
 import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
-import ru.vgd.tracker.service.dto.transaction.TransactionDto;
 import ru.vgd.tracker.service.dto.transaction.TransactionFilter;
 import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -38,42 +33,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionController {
 
-    private final AccountService accountService;
     private final TransactionService transactionService;
+    private final TransactionsFacade transactionsFacade;
 
     /**
-     * Показать транзакции по счетам пользователя
+     * Показать страницу транзакций по счетам пользователя
      */
     @GetMapping
-    public String getTransactions(
+    public String getTransactionsPage(
             @ModelAttribute TransactionFilter filter,
             @PageableDefault(size = 30, sort = "transactionDate", direction = Sort.Direction.DESC) Pageable pageable,
             Model model,
             @AuthenticationPrincipal SecurityUser principal
     ) {
 
-        List<AccountDto> userAccounts = accountService.getUserAccounts(principal.getUserId());
-        if (filter.getAccounts().isEmpty()) filter.setAccounts(userAccounts.stream().map(AccountDto::getId).toList());
+        var data = transactionsFacade.getTransactionPageData(principal.getUserId(), filter, pageable);
 
-        Page<TransactionDto> transactionPage = transactionService.getTransactions(filter, pageable);
-        BigDecimal totalIncomes = BigDecimal.ZERO;
-        BigDecimal totalExpenses = BigDecimal.ZERO;
-
-        for (TransactionDto transaction : transactionPage.getContent()) {
-            if (TransactionType.INCOME == transaction.getType()) {
-                totalIncomes = totalIncomes.add(transaction.getAmount());
-            } else if (TransactionType.EXPENSE == transaction.getType()) {
-                totalExpenses = totalExpenses.add(transaction.getAmount());
-            }
-        }
-
-        model.addAttribute("filter", filter);
-        model.addAttribute("transactions", transactionPage.getContent());
-        model.addAttribute("accounts", userAccounts);
-        model.addAttribute("currentPage", transactionPage.getNumber());
-        model.addAttribute("totalPages", transactionPage.getTotalPages());
-        model.addAttribute("totalIncomes", totalIncomes);
-        model.addAttribute("totalExpenses", totalExpenses);
+        model.addAttribute("filter", data.filter());
+        model.addAttribute("transactions", data.transactions().getContent());
+        model.addAttribute("accounts", data.accounts());
+        model.addAttribute("currentPage", data.transactions().getNumber());
+        model.addAttribute("totalPages", data.transactions().getTotalPages());
+        model.addAttribute("totalIncomes", data.summary().totalIncomes());
+        model.addAttribute("totalExpenses", data.summary().totalExpenses());
 
         return "transactions/list";
     }

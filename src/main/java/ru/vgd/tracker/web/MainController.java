@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.vgd.tracker.dal.account.entity.AccountType;
 import ru.vgd.tracker.dal.transaction.Category;
-import ru.vgd.tracker.facade.MainFacade;
+import ru.vgd.tracker.facade.main.MainFacade;
 import ru.vgd.tracker.security.SecurityUser;
 import ru.vgd.tracker.service.dto.account.AccountDto;
 import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
