@@ -47,7 +47,7 @@ public class AccountController {
         AccountDto currentAccount = accounts.stream()
                 .filter(account -> account.getId().equals(accountId))
                 .findFirst()
-                .orElseThrow(() -> new ItemNotFoundException("Account not found"));
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Счёт %s не найден", accountId)));
 
         var recentTransactions = transactionService.getAccountLastTransactions(accountId);
 

@@ -24,3 +24,7 @@ logging:
   level:
     ru.vgd.tracker: DEBUG
     org.zalando.logbook: DEBUG
+
+app:
+  error:
+    show-stacktrace: true

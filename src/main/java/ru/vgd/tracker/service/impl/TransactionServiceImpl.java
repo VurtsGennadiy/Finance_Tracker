@@ -118,7 +118,6 @@ public class TransactionServiceImpl implements TransactionService {
      * @param accountId идентификатор счёта.
      * @return List<TransactionDto> из 5 последних транзакций отсортированных по дате совершения транзакции.
      */
-    // TODO проверка доступа
     @Override
     @Transactional(readOnly = true)
     public List<TransactionDto> getAccountLastTransactions(UUID accountId) {
@@ -139,7 +138,6 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toDto(transactions);
     }
 
-    // TODO проверка доступа
     @Override
     @Transactional(readOnly = true)
     public Page<TransactionDto> getTransactions(TransactionFilter filter, Pageable pageable) {
@@ -149,7 +147,6 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionPage.map(transactionMapper::toDto);
     }
 
-    // TODO проверка доступа
     @Override
     @Transactional
     public void cancelTransaction(UUID transactionId) {
@@ -193,7 +190,6 @@ public class TransactionServiceImpl implements TransactionService {
      * Отмена последней транзакции пользователя.
      * @param userId идентификатор пользователя, совершившего транзакцию.
      */
-    // TODO проверка доступа
     @Override
     @Transactional
     public void cancelLastTransaction(UUID userId) {
@@ -238,7 +234,6 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("Сохранена начальная транзакция account Id: {}, transactionId: {}", account.getId(), transaction.getId());
     }
 
-    // TODO проверка доступа
     @Override
     @Transactional(readOnly = true)
     public TransactionSummaryDto getSummary(TransactionFilter filter) {

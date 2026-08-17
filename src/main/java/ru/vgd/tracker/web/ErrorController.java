@@ -3,11 +3,11 @@ package ru.vgd.tracker.web;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.webmvc.error.ErrorAttributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
@@ -22,7 +22,10 @@ public class ErrorController implements org.springframework.boot.webmvc.error.Er
 
     private final ErrorAttributes errorAttributes;
 
-    @GetMapping
+    @Value("${app.error.show-stacktrace:false}")
+    private boolean showStackTrace;
+
+    @RequestMapping
     public Object handleError(WebRequest request, Model model) {
 
         Throwable throwable = errorAttributes.getError(request);
@@ -56,7 +59,7 @@ public class ErrorController implements org.springframework.boot.webmvc.error.Er
         }
 
         model.addAttribute("errorMessage", message);
-        model.addAttribute("errorDetails", stackTrace);
+        if (showStackTrace) model.addAttribute("errorDetails", stackTrace);
         model.addAttribute("status", status);
 
         return resolveViewName(status);

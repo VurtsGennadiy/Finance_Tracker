@@ -2,12 +2,12 @@ package ru.vgd.tracker.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.user.User;
-import ru.vgd.tracker.exception.AccessDeniedException;
 import ru.vgd.tracker.exception.ItemNotFoundException;
 import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.dto.account.AccountCreateRequest;
