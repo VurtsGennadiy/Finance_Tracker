@@ -10,7 +10,7 @@
     </parent>
     <groupId>ru.vgd</groupId>
     <artifactId>Finance_Tracker</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>Finance_Tracker</name>
     <description>Finance_Tracker</description>
     <url/>

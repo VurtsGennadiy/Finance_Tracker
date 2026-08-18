@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
   app:
-    image: walletcontrol:0.0.4
+    image: walletcontrol:0.0.5
     container_name: wallet_app
     ports:
       - "8080:8080"
