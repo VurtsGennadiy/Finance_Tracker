@@ -9,8 +9,7 @@ import ru.vgd.tracker.service.TransactionService;
 import ru.vgd.tracker.service.dto.account.AccountDto;
 import ru.vgd.tracker.service.dto.account.CreditCardAccountDto;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ public class MainFacadeImpl implements MainFacade {
         double accountsPayable = 0d;
         double totalBalance = 0d;
 
+        Map<AccountType, List<AccountDto>> accountsMap = new EnumMap<>(AccountType.class);
         List<AccountDto> accounts = accountService.getUserAccounts(userId);
         for (AccountDto account : accounts) {
             double balance = account.getBalance().doubleValue();
@@ -47,9 +47,12 @@ public class MainFacadeImpl implements MainFacade {
                 availableBalance += balance;
             }
             totalBalance += balance;
+
+            accountsMap.computeIfAbsent(account.getAccountType(), t -> new ArrayList<>());
+            accountsMap.get(account.getAccountType()).add(account);
         }
 
-        result.setAccounts(accounts);
+        result.setAccounts(accountsMap);
         result.setAvailableBalance(availableBalance);
         result.setAccountsReceivable(accountsReceivable);
         result.setAccountsPayable(accountsPayable);

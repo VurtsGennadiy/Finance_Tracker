@@ -61,7 +61,7 @@
         </div>
 
         <!-- Quick Actions -->
-        <div th:if="${not #lists.isEmpty(data.accounts)}" class="row mb-4 justify-content-center">
+        <div th:if="${not #lists.isEmpty(accountsList)}" class="row mb-4 justify-content-center">
             <div class="col-auto">
                 <button class="btn quick-action-btn btn-income" data-bs-toggle="modal" data-bs-target="#incomeModal">
                     <i class="bi bi-arrow-down-circle fs-4 d-block mb-2"></i>
@@ -109,24 +109,48 @@
                     </a>
                 </div>
 
-                <div class="row g-3">
-                    <div th:each="account : ${data.accounts}" class="col-md-6 col-lg-4">
-                        <a th:href="@{/accounts/{id}(id=${account.id})}" class="text-decoration-none">
-                            <div class="bank-card">
-                                <!-- Название счёта -->
-                                <div class="mb-3">
-                                    <div class="small opacity-75 mb-1">Название счёта</div>
-                                    <div class="fs-5 fw-bold" th:text="${account.name}">Название счёта</div>
-                                </div>
 
-                                <!-- Текущий баланс -->
-                                <div>
-                                    <div class="small opacity-75 mb-1">Текущий баланс</div>
-                                    <h3 class="mb-0" th:text="${#numbers.formatDecimal(account.balance, 1, 'WHITESPACE', 2, 'COMMA')} + ' ₽'">0,00 ₽</h3>
-                                </div>
+                <!-- Проверка: есть ли вообще какие-либо счета -->
+                <div th:if="${!data.accounts.isEmpty()}">
+
+                    <!-- Итерация по группам счетов -->
+                    <div th:each="group : ${data.accounts}"
+                         th:if="${not #lists.isEmpty(group.value)}"
+                         class="mb-4">
+
+                        <!-- Заголовок группы -->
+                        <h6 class="text-muted mb-3 border-bottom pb-2 d-flex align-items-center">
+                            <span th:text="${group.key.displayName}">Тип счёта</span>
+                            <span class="badge bg-secondary ms-2" th:text="${#lists.size(group.value)}">0</span>
+                        </h6>
+
+                        <!-- Сетка счетов для данной группы -->
+                        <div class="row g-3">
+                            <div th:each="account : ${group.value}" class="col-md-6 col-lg-4">
+                                <a th:href="@{/accounts/{id}(id=${account.id})}" class="text-decoration-none">
+                                    <div class="bank-card">
+                                        <!-- Название счёта -->
+                                        <div class="mb-3">
+                                            <div class="small opacity-75 mb-1">Название счёта</div>
+                                            <div class="fs-5 fw-bold" th:text="${account.name}">Название счёта</div>
+                                        </div>
+
+                                        <!-- Текущий баланс -->
+                                        <div>
+                                            <div class="small opacity-75 mb-1">Текущий баланс</div>
+                                            <h3 class="mb-0" th:text="${#numbers.formatDecimal(account.balance, 1, 'WHITESPACE', 2, 'COMMA')} + ' ₽'">0,00 ₽</h3>
+                                        </div>
+                                    </div>
+                                </a>
                             </div>
-                        </a>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Заглушка, если нет счетов -->
+                <div th:if="${data.accounts.isEmpty()}" class="text-center py-5 text-muted bg-light rounded">
+                    <i class="bi bi-wallet2 fs-1 d-block mb-3"></i>
+                    <p class="mb-3">У вас пока нет счетов.</p>
                 </div>
             </div>
         </div>
@@ -134,10 +158,10 @@
     </div>
 
     <!-- Modals -->
-    <div th:if="${not #lists.isEmpty(data.accounts)}">
-        <div th:insert="~{fragments/modals :: incomeModal(${data.accounts}, ${incomeCategories}, ${transactionCreateRequest})}"></div>
-        <div th:insert="~{fragments/modals :: expenseModal(${data.accounts}, ${expenseCategories}, ${transactionCreateRequest})}"></div>
-        <div th:insert="~{fragments/modals :: transferModal(${data.accounts}, ${transferCreateRequest})}"></div>
+    <div th:if="${not #lists.isEmpty(accountsList)}">
+        <div th:insert="~{fragments/modals :: incomeModal(${accountsList}, ${incomeCategories}, ${transactionCreateRequest})}"></div>
+        <div th:insert="~{fragments/modals :: expenseModal(${accountsList}, ${expenseCategories}, ${transactionCreateRequest})}"></div>
+        <div th:insert="~{fragments/modals :: transferModal(${accountsList}, ${transferCreateRequest})}"></div>
     </div>
 </div>
 

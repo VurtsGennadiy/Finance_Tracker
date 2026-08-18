@@ -8,6 +8,7 @@ import lombok.Data;
 import ru.vgd.tracker.dal.account.entity.AccountType;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 /**
  * DTO для формы создания нового счёта
@@ -35,7 +36,13 @@ public class AccountCreateRequest {
 
     @AssertTrue(message = "Название банка не должно быть пустым")
     public boolean isBankNameValid() {
-        if (accountType != AccountType.CASH) {
+        final Set<AccountType> checkedTypes = Set.of(
+                AccountType.DEBIT_CARD,
+                AccountType.CREDIT_CARD,
+                AccountType.BANK
+        );
+
+        if (checkedTypes.contains(accountType)) {
             if (bankName == null) return false;
             else return !bankName.isBlank();
         }
