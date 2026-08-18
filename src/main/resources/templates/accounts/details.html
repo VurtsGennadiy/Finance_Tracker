@@ -32,19 +32,26 @@
                     </div>
 
                     <div class="account-info-row">
-                        <div th:if="${account.accountType.name() == 'BANK' or account.accountType.name() == 'CARD'}" class="account-info-item">
+                        <div th:if="${account.accountType.name() == 'DEBIT_CARD'
+                                    or account.accountType.name() == 'CREDIT_CARD'
+                                    or account.accountType.name() == 'BANK'}"
+                             class="account-info-item">
                             <div class="account-info-label">Банк</div>
                             <div class="account-info-value" th:text="${account.bankName}">Название банка</div>
                         </div>
-                        <div th:if="${account.accountType.name() == 'CARD'}" class="account-info-item">
-                            <div class="account-info-label" th:text="${account.cardType.displayName + ' карта'}">Номер карты</div>
+
+                        <div th:if="${account.accountType.name() == 'DEBIT_CARD'
+                                    or account.accountType.name() == 'CREDIT_CARD'}" class="account-info-item">
+                            <div class="account-info-label" th:text="${account.accountType.displayName} ">Номер карты</div>
                             <div class="account-info-value" th:text="${account.cardNumber}">0000000000</div>
                         </div>
+
                         <div th:if="${account.accountType.name() == 'BANK'}" class="account-info-item">
                             <div class="account-info-label">Номер счёта</div>
                             <div class="account-info-value" th:text="${account.accountNumber}">0000000000</div>
                         </div>
-                        <div th:if="${account.accountType.name() == 'CARD' and account.cardType.name() == 'CREDIT'}" class="account-info-item">
+
+                        <div th:if="${account.accountType.name() == 'CREDIT_CARD'}" class="account-info-item">
                             <div class="account-info-label">Кредитный лимит</div>
                             <div class="account-info-value">
                                 <span th:if="${account.creditLimit != null}">
