@@ -6,7 +6,12 @@
 #
 # Переменные окружения:
 #   APP_TAG   — тег собираемого образа (по умолчанию latest, CI передаёт SHA коммита)
-#   APP_URL   — URL для проверки готовности (по умолчанию http://localhost:8080/login)
+#   APP_URL   — URL для проверки готовности (по умолчанию http://localhost:8080/actuator/health)
+#
+# Обязательные переменные в .env:
+#   POSTGRES_USER     — имя пользователя БД
+#   POSTGRES_DB       — имя базы данных
+#   POSTGRES_PASSWORD — пароль БД (может быть пустым)
 #
 # Скрипт идемпотентен: его можно запускать повторно.
 
@@ -14,8 +19,7 @@ set -euo pipefail
 
 APP_TAG="${APP_TAG:-latest}"
 APP_IMAGE="walletcontrol:${APP_TAG}"
-APP_CONTAINER="wallet_app"
-APP_URL="${APP_URL:-http://localhost:8080/login}"
+APP_URL="${APP_URL:-http://localhost:8080/actuator/health}"
 HEALTH_ATTEMPTS="${HEALTH_ATTEMPTS:-45}"
 HEALTH_DELAY="${HEALTH_DELAY:-2}"
 BACKUPS_TO_KEEP=10
@@ -35,17 +39,38 @@ command -v curl >/dev/null 2>&1 || die "на сервере не найден cu
 log "Резервная копия базы данных"
 db_container="$(docker compose ps -q db 2>/dev/null || true)"
 if [ -n "$db_container" ]; then
-    mkdir -p backups
-    backup_file="backups/wallet_$(date +%Y%m%d-%H%M%S).sql"
-    # POSTGRES_USER и POSTGRES_DB берутся из окружения самого контейнера
-    docker exec "$db_container" sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > "$backup_file" \
-        || die "не удалось создать резервную копию БД"
-    [ -s "$backup_file" ] || die "резервная копия БД пуста: $backup_file"
-    echo "Сохранено: $backup_file ($(du -h "$backup_file" | cut -f1))"
-    # Оставляем только последние BACKUPS_TO_KEEP копий
-    ls -1t backups/*.sql 2>/dev/null | tail -n +$((BACKUPS_TO_KEEP + 1)) | xargs -r rm -f
+    # Проверяем, что PostgreSQL действительно готов принимать подключения
+    if docker exec "$db_container" pg_isready -q 2>/dev/null; then
+        # Загружаем переменные из .env
+        if [ -f .env ]; then
+            set -a
+            source .env
+            set +a
+        else
+            die "файл .env не найден — он необходим для подключения к БД"
+        fi
+
+        # Проверяем обязательные переменные
+        : "${POSTGRES_USER:?Переменная POSTGRES_USER не задана в .env}"
+        : "${POSTGRES_DB:?Переменная POSTGRES_DB не задана в .env}"
+
+        mkdir -p backups
+        backup_file="backups/wallet_$(date +%Y%m%d-%H%M%S).sql"
+
+        docker exec -e PGPASSWORD="${POSTGRES_PASSWORD:-}" "$db_container" \
+            sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > "$backup_file" \
+            || die "не удалось создать резервную копию БД"
+
+        [ -s "$backup_file" ] || die "резервная копия БД пуста: $backup_file"
+        echo "Сохранено: $backup_file ($(du -h "$backup_file" | cut -f1))"
+
+        # Ротация бэкапов
+        ls -1t backups/*.sql 2>/dev/null | tail -n +$((BACKUPS_TO_KEEP + 1)) | xargs -r rm -f
+    else
+        echo "⚠️ PostgreSQL не готов (возможно, первый запуск или сбой) — резервная копия пропущена"
+    fi
 else
-    echo "Контейнер БД не запущен — резервная копия пропущена (первый деплой?)"
+    echo "Контейнер БД не запущен — резервная копия пропущена"
 fi
 
 log "Сборка образа $APP_IMAGE"
@@ -57,7 +82,7 @@ if docker image inspect walletcontrol:latest >/dev/null 2>&1; then
     echo "Предыдущий образ сохранён как walletcontrol:previous"
 fi
 
-docker build --build-arg JAR_FILE=app.jar -t "$APP_IMAGE" -t walletcontrol:latest .
+docker build -t "$APP_IMAGE" -t walletcontrol:latest .
 echo "Собран образ $APP_IMAGE"
 
 log "Запуск контейнеров"
@@ -73,7 +98,7 @@ fi
 log "Ожидание готовности приложения"
 ready=0
 for _ in $(seq 1 "$HEALTH_ATTEMPTS"); do
-    if curl -fsS -o /dev/null --max-time 5 "$APP_URL"; then
+    if curl -fsSL -o /dev/null --max-time 5 "$APP_URL"; then
         ready=1
         break
     fi
@@ -97,4 +122,4 @@ log "Очистка неиспользуемых образов"
 docker image prune -f >/dev/null || true
 
 log "Готово"
-echo "Задеплоен образ $APP_IMAGE, контейнер $APP_CONTAINER"
+echo "✅ Задеплоен образ $APP_IMAGE"
