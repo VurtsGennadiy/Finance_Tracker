@@ -105,8 +105,8 @@ jobs:
           SSH="ssh -p ${PORT} -i ${HOME}/.ssh/deploy_key -o BatchMode=yes"
           SCP="scp -P ${PORT} -i ${HOME}/.ssh/deploy_key -o BatchMode=yes"
 
-          $SSH "$REMOTE" "mkdir -p '${DIR}'"
-          $SCP "$JAR" "$REMOTE:${DIR}/app.jar"
+          $SSH "$REMOTE" "mkdir -p '${DIR}' '${DIR}/target'"
+          $SCP "$JAR" "$REMOTE:${DIR}/target/app.jar"
           $SCP Dockerfile docker-compose.yaml .dockerignore "$REMOTE:${DIR}/"
           $SCP scripts/remote-deploy.sh "$REMOTE:${DIR}/remote-deploy.sh"
 
