@@ -35,3 +35,10 @@ build/
 
 .env
 todo
+
+### Локальные данные, артефакты деплоя и логи ###
+logs/
+volumes/
+backups/
+walletcontrol/
+.dsh-acl-recovery/
