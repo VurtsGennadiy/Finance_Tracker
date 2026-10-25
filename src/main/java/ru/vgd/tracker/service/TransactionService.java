@@ -22,7 +22,7 @@ public interface TransactionService {
 
     Page<TransactionDto> getTransactions(TransactionFilter filter, Pageable pageable);
 
-    void cancelTransaction(UUID transactionId);
+    void cancelTransaction(UUID transactionId, UUID userId);
 
     void cancelLastTransaction(UUID userId);
 

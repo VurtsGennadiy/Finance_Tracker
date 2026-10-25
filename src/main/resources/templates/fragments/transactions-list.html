@@ -1,60 +1,80 @@
-<div th:fragment="transactions-list(transactions)">
+<div th:fragment="transactions-list(transactions, allowCancel)" xmlns:th="http://www.w3.org/1999/xhtml">
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="list-group list-group-flush">
                 <div th:each="transaction : ${transactions}" class="list-group-item operation-item">
+                    <div class="d-flex align-items-start gap-2">
 
-                    <!-- Строка 1: Категория и Сумма -->
-                    <div class="row mb-1">
-                        <div class="col-7">
-                            <div class="fw-bold"
-                                 th:if="${transaction.category != null}"
-                                 th:classappend="${transaction.category.incomeCategory ? 'transaction-income' : 'transaction-expense'}"
-                                 th:text="${transaction.category.displayName}">
-                                Категория
+                        <!-- Данные операции -->
+                        <div class="flex-grow-1 min-w-0">
+                            <!-- Строка 1: Категория и Сумма -->
+                            <div class="row mb-1">
+                                <div class="col-7">
+                                    <div class="fw-bold"
+                                         th:if="${transaction.category != null}"
+                                         th:classappend="${transaction.category.incomeCategory ? 'transaction-income' : 'transaction-expense'}"
+                                         th:text="${transaction.category.displayName}">
+                                        Категория
+                                    </div>
+                                    <div class="fw-bold"
+                                         th:if="${transaction.category == null}"
+                                         th:classappend="transaction-transfer"
+                                         th:text="${transaction.type.displayName}">
+                                        Перевод
+                                    </div>
+                                </div>
+                                <div class="col-5 text-end">
+                                    <div class="fw-bold"
+                                         th:if="${transaction.type.name() == 'INITIAL'}"
+                                         th:classappend="transaction-transfer"
+                                         th:text="${#numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
+                                    </div>
+                                    <div class="fw-bold"
+                                         th:if="${transaction.type.name() != 'INITIAL'}"
+                                         th:classappend="${transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? 'transaction-income' : 'transaction-expense'}"
+                                         th:text="${(transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
+                                        -1 000,00 ₽
+                                    </div>
+                                </div>
                             </div>
-                            <div class="fw-bold"
-                                 th:if="${transaction.category == null}"
-                                 th:classappend="transaction-transfer"
-                                 th:text="${transaction.type.displayName}">
-                                Перевод
-                            </div>
-                        </div>
-                        <div class="col-5 text-end">
-                            <div class="fw-bold"
-                                 th:if="${transaction.type.name() == 'INITIAL'}"
-                                 th:classappend="transaction-transfer"
-                                 th:text="${#numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
-                            </div>
-                            <div class="fw-bold"
-                                 th:if="${transaction.type.name() != 'INITIAL'}"
-                                 th:classappend="${transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? 'transaction-income' : 'transaction-expense'}"
-                                 th:text="${(transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
-                                -1 000,00 ₽
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Строка 2: Дата и Имя счёта -->
-                    <div class="row mb-1">
-                        <div class="col-4">
-                            <div class="text-muted small" th:text="${#temporals.format(transaction.transactionDate, 'dd.MM.yyyy')}">
-                                01.01.2026
+                            <!-- Строка 2: Дата и Имя счёта -->
+                            <div class="row mb-1">
+                                <div class="col-4">
+                                    <div class="text-muted small" th:text="${#temporals.format(transaction.transactionDate, 'dd.MM.yyyy')}">
+                                        01.01.2026
+                                    </div>
+                                </div>
+                                <div class="col-8 text-end">
+                                    <div class="text-muted small text-truncate" th:text="${transaction.accountName}">
+                                        Название счёта
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-8 text-end">
-                            <div class="text-muted small text-truncate" th:text="${transaction.accountName}">
-                                Название счёта
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Строка 3: Комментарий (на всю ширину) -->
-                    <div class="row" th:if="${transaction.description != null and not #strings.isEmpty(transaction.description)}">
-                        <div class="col-12">
-                            <div class="text-muted small" th:text="${transaction.description}">
-                                Описание операции
+                            <!-- Строка 3: Комментарий (на всю ширину) -->
+                            <div class="row" th:if="${transaction.description != null and not #strings.isEmpty(transaction.description)}">
+                                <div class="col-12">
+                                    <div class="text-muted small" th:text="${transaction.description}">
+                                        Описание операции
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- Отмена операции -->
+                        <div th:if="${allowCancel and transaction.type.name() != 'INITIAL'}">
+                            <form th:action="@{/transactions/{id}/cancel(id=${transaction.id})}"
+                                  method="post"
+                                  class="m-0"
+                                  onsubmit="return confirm('Отменить операцию? Баланс счёта будет пересчитан.');">
+                                <button type="submit"
+                                        class="transaction-cancel-btn"
+                                        title="Отменить операцию"
+                                        aria-label="Отменить операцию">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

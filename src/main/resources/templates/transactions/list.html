@@ -16,6 +16,8 @@
     </div>
 
     <div class="container">
+        <div th:insert="~{fragments/flash-messages :: flashMessages}"></div>
+
         <!-- Фильтры -->
         <div class="filter-card">
             <form id="filterForm" th:object="${filter}" th:action="@{/transactions}" method="get">
@@ -154,7 +156,7 @@
         <!-- Список транзакций -->
         <div class="row mb-4">
             <div class="col-12">
-                <div th:insert="~{fragments/transactions-list :: transactions-list(${transactions})}"></div>
+                <div th:insert="~{fragments/transactions-list :: transactions-list(${transactions}, true)}"></div>
             </div>
         </div>
 

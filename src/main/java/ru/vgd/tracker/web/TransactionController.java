@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -24,6 +25,7 @@ import ru.vgd.tracker.service.dto.transaction.TransactionFilter;
 import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * MVC-контроллер для управления транзакциями через Thymeleaf
@@ -160,6 +162,27 @@ public class TransactionController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка при отмене операции: " + e.getMessage());
             return "redirect:/";
+        }
+    }
+
+    /**
+     * Отмена (удаление) транзакции со страницы истории операций
+     */
+    @PostMapping("/{transactionId}/cancel")
+    public String cancelTransaction(@PathVariable UUID transactionId,
+                                    @AuthenticationPrincipal SecurityUser securityUser,
+                                    RedirectAttributes redirectAttributes,
+                                    HttpServletRequest httpRequest) {
+
+        String redirectUri = "redirect:" + extractRedirectUri(httpRequest);
+
+        try {
+            transactionService.cancelTransaction(transactionId, securityUser.getUserId());
+            redirectAttributes.addFlashAttribute("success", "Операция отменена");
+            return redirectUri;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при отмене операции: " + e.getMessage());
+            return redirectUri;
         }
     }
 

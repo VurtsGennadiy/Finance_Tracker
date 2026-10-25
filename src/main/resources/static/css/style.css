@@ -63,3 +63,31 @@ body {
     background-color: #f8f9fa;
     border-left-color: #667eea;
 }
+
+/* Лаконичная кнопка отмены операции в списке транзакций */
+.transaction-cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: #adb5bd;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    line-height: 1;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.transaction-cancel-btn:hover {
+    color: #dc3545;
+    background-color: #fdecee;
+}
+
+.transaction-cancel-btn:focus-visible {
+    outline: none;
+    color: #dc3545;
+    background-color: #fdecee;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}

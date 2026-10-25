@@ -6,6 +6,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
@@ -147,43 +148,28 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionPage.map(transactionMapper::toDto);
     }
 
+    /**
+     * Отмена (удаление) транзакции с пересчётом баланса счёта.
+     * @param transactionId идентификатор отменяемой транзакции.
+     * @param userId идентификатор пользователя, инициировавшего отмену.
+     * @throws ItemNotFoundException если транзакция не найдена.
+     * @throws AccessDeniedException если у пользователя нет прав на счёт транзакции.
+     */
     @Override
     @Transactional
-    public void cancelTransaction(UUID transactionId) {
-        log.debug("Запрос отмены транзакции. transactionId: {}", transactionId);
+    public void cancelTransaction(UUID transactionId, UUID userId) {
+        log.debug("Запрос отмены транзакции. transactionId: {}, userId: {}", transactionId, userId);
 
-        Transaction lastTransaction = transactionRepository.findById(transactionId)
+        Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new ItemNotFoundException("Транзакция не найдена"));
 
-        BigDecimal amount = lastTransaction.getAmount();
-        Account account = lastTransaction.getAccount();
-
-        switch (lastTransaction.getType()) {
-            case INCOME -> account.setBalance(account.getBalance().subtract(amount));
-            case EXPENSE -> account.setBalance(account.getBalance().add(amount));
-            case TRANSFER_IN, TRANSFER_OUT -> {
-                if (TransactionType.TRANSFER_IN == lastTransaction.getType()) {
-                    account.setBalance(account.getBalance().subtract(amount));
-                } else {
-                    account.setBalance(account.getBalance().add(amount));
-                }
-
-                Transaction relatedTransaction = lastTransaction.getRelatedTransaction();
-                if (relatedTransaction != null) {
-                    Account relatedAccount = relatedTransaction.getAccount();
-                    if (TransactionType.TRANSFER_IN == relatedTransaction.getType()) {
-                        relatedAccount.setBalance(account.getBalance().subtract(amount));
-                    } else {
-                        relatedAccount.setBalance(account.getBalance().add(amount));
-                    }
-                    transactionRepository.delete(relatedTransaction);
-                    log.info("Отменена связанная транзакция. transactionId: {}", relatedTransaction.getId());
-                }
-            }
+        UUID accountId = transaction.getAccount().getId();
+        if (!accountRepository.isAccountOwnedBy(userId, accountId)) {
+            throw new AccessDeniedException("Нет прав для отмены этой операции");
         }
 
-        transactionRepository.delete(lastTransaction);
-        log.info("Транзакция отменена. transactionId: {}", transactionId);
+        cancelTransaction(transaction);
+        log.info("Транзакция отменена. transactionId: {}, userId: {}", transactionId, userId);
     }
 
     /**
@@ -199,7 +185,57 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction lastTransaction = transactionsPage.getContent().stream().findFirst()
                 .orElseThrow(() -> new ItemNotFoundException("Транзакция не найдена"));
 
-        cancelTransaction(lastTransaction.getId());
+        cancelTransaction(lastTransaction);
+    }
+
+    /**
+     * Пересчитывает баланс счёта и удаляет транзакцию.
+     * Для перевода удаляется и связанная транзакция, а балансы обоих счетов восстанавливаются.
+     * @param transaction отменяемая транзакция.
+     * @throws IllegalStateException если транзакция является начальным балансом счёта.
+     */
+    private void cancelTransaction(Transaction transaction) {
+        Account account = transaction.getAccount();
+        BigDecimal amount = transaction.getAmount();
+
+        switch (transaction.getType()) {
+            case INCOME -> account.setBalance(account.getBalance().subtract(amount));
+            case EXPENSE -> account.setBalance(account.getBalance().add(amount));
+            case TRANSFER_IN -> {
+                account.setBalance(account.getBalance().subtract(amount));
+                cancelRelatedTransferTransaction(transaction, amount);
+            }
+            case TRANSFER_OUT -> {
+                account.setBalance(account.getBalance().add(amount));
+                cancelRelatedTransferTransaction(transaction, amount);
+            }
+            case INITIAL -> throw new IllegalStateException("Нельзя отменить начальную транзакцию счёта");
+        }
+
+        transactionRepository.delete(transaction);
+        log.info("Транзакция отменена. transactionId: {}", transaction.getId());
+    }
+
+    /**
+     * Удаляет связанную транзакцию перевода и возвращает сумму на её счёт.
+     * @param transaction отменяемая транзакция перевода.
+     * @param amount сумма перевода.
+     */
+    private void cancelRelatedTransferTransaction(Transaction transaction, BigDecimal amount) {
+        Transaction relatedTransaction = transaction.getRelatedTransaction();
+        if (relatedTransaction == null) {
+            return;
+        }
+
+        Account relatedAccount = relatedTransaction.getAccount();
+        if (TransactionType.TRANSFER_IN == relatedTransaction.getType()) {
+            relatedAccount.setBalance(relatedAccount.getBalance().subtract(amount));
+        } else if (TransactionType.TRANSFER_OUT == relatedTransaction.getType()) {
+            relatedAccount.setBalance(relatedAccount.getBalance().add(amount));
+        }
+
+        transactionRepository.delete(relatedTransaction);
+        log.info("Отменена связанная транзакция перевода. transactionId: {}", relatedTransaction.getId());
     }
 
     /**

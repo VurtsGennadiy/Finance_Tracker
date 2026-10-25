@@ -93,7 +93,7 @@
                         <i class="bi bi-list me-1"></i>Все операции</a>
                 </div>
                 
-                <div th:insert="~{fragments/transactions-list :: transactions-list(${data.recentTransactions})}"></div>
+                <div th:insert="~{fragments/transactions-list :: transactions-list(${data.recentTransactions}, false)}"></div>
             </div>
         </div>
 
