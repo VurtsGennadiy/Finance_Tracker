@@ -17,6 +17,7 @@ import ru.vgd.tracker.service.AccountService;
 import ru.vgd.tracker.service.TransactionService;
 import ru.vgd.tracker.service.dto.account.AccountCreateRequest;
 import ru.vgd.tracker.service.dto.account.AccountDto;
+import ru.vgd.tracker.service.dto.account.CreditLimitUpdateRequest;
 import ru.vgd.tracker.service.dto.transaction.TransactionCreateRequest;
 import ru.vgd.tracker.service.dto.transaction.TransferCreateRequest;
 
@@ -100,6 +101,37 @@ public class AccountController {
             model.addAttribute("error", "Ошибка при создании счёта: " + e.getMessage());
             return "accounts/create";
         }
+    }
+
+    /**
+     * Изменение кредитного лимита счёта кредитной карты
+     */
+    @PostMapping("/{accountId}/credit-limit")
+    public String updateCreditLimit(
+            @PathVariable UUID accountId,
+            @AuthenticationPrincipal SecurityUser principal,
+            @Valid @ModelAttribute("creditLimitRequest") CreditLimitUpdateRequest request,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage() != null
+                            ? error.getDefaultMessage()
+                            : "Ошибка валидации")
+                    .toList();
+            redirectAttributes.addFlashAttribute("validationErrors", errorMessages);
+            return "redirect:/accounts/" + accountId;
+        }
+
+        try {
+            accountService.updateCreditLimit(accountId, request.creditLimit(), principal.getUser());
+            redirectAttributes.addFlashAttribute("success", "Кредитный лимит успешно изменён");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при изменении кредитного лимита: " + e.getMessage());
+        }
+
+        return "redirect:/accounts/" + accountId;
     }
 
     /**

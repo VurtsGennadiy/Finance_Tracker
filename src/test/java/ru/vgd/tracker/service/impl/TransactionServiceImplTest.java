@@ -2,16 +2,19 @@ package ru.vgd.tracker.service.impl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import ru.vgd.tracker.dal.account.entity.Account;
 import ru.vgd.tracker.dal.account.entity.CashAccount;
+import ru.vgd.tracker.dal.account.entity.CreditCardAccount;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.transaction.Transaction;
 import ru.vgd.tracker.dal.transaction.TransactionRepository;
 import ru.vgd.tracker.dal.transaction.TransactionType;
+import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.ItemNotFoundException;
 import ru.vgd.tracker.util.mapper.TransactionMapper;
 
@@ -20,6 +23,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -137,6 +142,51 @@ class TransactionServiceImplTest {
     }
 
     @Test
+    void cancelTransaction_whenCreditLimitChange_thenThrowsAndTransactionNotDeleted() {
+        Account account = account("5000.00");
+        Transaction transaction = transaction(account, TransactionType.CREDIT_LIMIT_CHANGE, "3000.00");
+
+        stubCancellableTransaction(transaction);
+
+        assertThrows(IllegalStateException.class,
+                () -> transactionService.cancelTransaction(transaction.getId(), userId));
+
+        assertEquals(new BigDecimal("5000.00"), account.getBalance());
+        verify(transactionRepository, never()).delete(transaction);
+    }
+
+    @Test
+    void createCreditLimitChangeTransaction_whenLimitIncreased_thenPositiveAmountSaved() {
+        CreditCardAccount account = creditCardAccount("50000.00", "100000.00");
+        User user = testUser();
+        BigDecimal limitDelta = new BigDecimal("50000.00");
+
+        transactionService.createCreditLimitChangeTransaction(account, limitDelta, user);
+
+        Transaction saved = captureSavedTransaction();
+        assertEquals(TransactionType.CREDIT_LIMIT_CHANGE, saved.getType());
+        assertEquals(0, new BigDecimal("50000.00").compareTo(saved.getAmount()));
+        assertSame(account, saved.getAccount());
+        assertSame(user, saved.getCreatedBy());
+        assertNotNull(saved.getTransactionDate());
+        assertEquals("Кредитный лимит увеличен на 50000,00 ₽", saved.getDescription());
+    }
+
+    @Test
+    void createCreditLimitChangeTransaction_whenLimitDecreased_thenNegativeAmountSaved() {
+        CreditCardAccount account = creditCardAccount("50000.00", "100000.00");
+        User user = testUser();
+        BigDecimal limitDelta = new BigDecimal("-60000.00");
+
+        transactionService.createCreditLimitChangeTransaction(account, limitDelta, user);
+
+        Transaction saved = captureSavedTransaction();
+        assertEquals(TransactionType.CREDIT_LIMIT_CHANGE, saved.getType());
+        assertEquals(0, new BigDecimal("-60000.00").compareTo(saved.getAmount()));
+        assertEquals("Кредитный лимит уменьшен на 60000,00 ₽", saved.getDescription());
+    }
+
+    @Test
     void cancelTransaction_whenTransactionNotFound_thenThrowsItemNotFoundException() {
         UUID transactionId = UUID.randomUUID();
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.empty());
@@ -183,6 +233,37 @@ class TransactionServiceImplTest {
         transaction.setAmount(new BigDecimal(amount));
         transaction.setType(type);
         return transaction;
+    }
+
+    /**
+     * Счёт кредитной карты с указанным балансом и кредитным лимитом.
+     */
+    private CreditCardAccount creditCardAccount(String balance, String creditLimit) {
+        CreditCardAccount account = new CreditCardAccount();
+        account.setId(UUID.randomUUID());
+        account.setName("Кредитная карта");
+        account.setBalance(new BigDecimal(balance));
+        account.setCreditLimit(new BigDecimal(creditLimit));
+        return account;
+    }
+
+    /**
+     * Пользователь с идентификатором.
+     */
+    private User testUser() {
+        User user = new User();
+        user.setId(userId);
+        user.setUsername("test_user");
+        return user;
+    }
+
+    /**
+     * Перехваченная транзакция, сохранённая в репозиторий.
+     */
+    private Transaction captureSavedTransaction() {
+        ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+        verify(transactionRepository).save(captor.capture());
+        return captor.getValue();
     }
 
     /**

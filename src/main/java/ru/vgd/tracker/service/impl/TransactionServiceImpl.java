@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
+import ru.vgd.tracker.dal.account.entity.CreditCardAccount;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.transaction.*;
 import ru.vgd.tracker.dal.user.User;
@@ -19,6 +20,8 @@ import ru.vgd.tracker.service.dto.transaction.*;
 import ru.vgd.tracker.util.mapper.TransactionMapper;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -210,6 +213,8 @@ public class TransactionServiceImpl implements TransactionService {
                 cancelRelatedTransferTransaction(transaction, amount);
             }
             case INITIAL -> throw new IllegalStateException("Нельзя отменить начальную транзакцию счёта");
+            case CREDIT_LIMIT_CHANGE ->
+                    throw new IllegalStateException("Нельзя отменить транзакцию изменения кредитного лимита");
         }
 
         transactionRepository.delete(transaction);
@@ -263,6 +268,40 @@ public class TransactionServiceImpl implements TransactionService {
         transactionRepository.save(transaction);
 
         log.info("Сохранена начальная транзакция account Id: {}, transactionId: {}", account.getId(), transaction.getId());
+    }
+
+    /**
+     * Сохранение компенсационной транзакции изменения кредитного лимита.
+     * Сумма транзакции равна дельте лимита: положительная при увеличении лимита
+     * и отрицательная при его уменьшении, поэтому сумма транзакций по счёту
+     * остаётся равной балансу счёта.
+     */
+    @Override
+    @Transactional
+    public void createCreditLimitChangeTransaction(CreditCardAccount account, BigDecimal limitDelta, User user) {
+        log.debug("Создание компенсационной транзакции изменения кредитного лимита." +
+                        " accountId: {}, limitDelta: {}", account.getId(), limitDelta);
+
+        String changeDirection = limitDelta.signum() > 0 ? "увеличен" : "уменьшен";
+
+        Transaction transaction = new Transaction();
+        transaction.setAccount(account);
+        transaction.setAmount(limitDelta);
+        transaction.setType(TransactionType.CREDIT_LIMIT_CHANGE);
+        transaction.setDescription(String.format("Кредитный лимит %s на %s",
+                changeDirection, formatMoney(limitDelta.abs())));
+        transaction.setCreatedBy(user);
+        transactionRepository.save(transaction);
+
+        log.info("Сохранена компенсационная транзакция изменения кредитного лимита."
+                + " accountId: {}, transactionId: {}, amount: {}", account.getId(), transaction.getId(), limitDelta);
+    }
+
+    /**
+     * Форматирование денежной суммы для пользовательского описания транзакции.
+     */
+    private static String formatMoney(BigDecimal amount) {
+        return amount.setScale(2, RoundingMode.HALF_UP).toPlainString().replace('.', ',') + " ₽";
     }
 
     @Override

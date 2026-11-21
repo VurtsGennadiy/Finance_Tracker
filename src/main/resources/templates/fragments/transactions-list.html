@@ -30,7 +30,12 @@
                                          th:text="${#numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
                                     </div>
                                     <div class="fw-bold"
-                                         th:if="${transaction.type.name() != 'INITIAL'}"
+                                         th:if="${transaction.type.name() == 'CREDIT_LIMIT_CHANGE'}"
+                                         th:classappend="${transaction.amount.signum() >= 0 ? 'transaction-income' : 'transaction-expense'}"
+                                         th:text="${(transaction.amount.signum() >= 0 ? '+' : '') + #numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
+                                    </div>
+                                    <div class="fw-bold"
+                                         th:if="${transaction.type.name() != 'INITIAL' and transaction.type.name() != 'CREDIT_LIMIT_CHANGE'}"
                                          th:classappend="${transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? 'transaction-income' : 'transaction-expense'}"
                                          th:text="${(transaction.type.name() == 'INCOME' or transaction.type.name() == 'TRANSFER_IN' ? '+' : '-') + #numbers.formatDecimal(transaction.amount, 1, 'WHITESPACE', 2, 'COMMA') + ' ₽'}">
                                         -1 000,00 ₽
@@ -63,7 +68,9 @@
                         </div>
 
                         <!-- Отмена операции -->
-                        <div th:if="${allowCancel and transaction.type.name() != 'INITIAL'}">
+                        <div th:if="${allowCancel
+                                      and transaction.type.name() != 'INITIAL'
+                                      and transaction.type.name() != 'CREDIT_LIMIT_CHANGE'}">
                             <form th:action="@{/transactions/{id}/cancel(id=${transaction.id})}"
                                   method="post"
                                   class="m-0"

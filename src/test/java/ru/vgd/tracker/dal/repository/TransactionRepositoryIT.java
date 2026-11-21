@@ -120,13 +120,22 @@ public class TransactionRepositoryIT {
                 .description("исходящий перевод")
                 .build();
 
+        TransactionData credit_limit_change = TransactionData.builder()
+                .accountId(UUID.fromString("886d71ce-de71-4aad-86e4-b8a46f92312d"))
+                .userId(UUID.fromString("42567893-05e8-4ea2-8d45-6a99941789fb"))
+                .amount(new BigDecimal("-15000.00"))
+                .type(TransactionType.CREDIT_LIMIT_CHANGE)
+                .description("изменение кредитного лимита")
+                .build();
+
 
         return Stream.of(
                 Arguments.of(initial),
                 Arguments.of(income),
                 Arguments.of(expense),
                 Arguments.of(transfer_in),
-                Arguments.of(transfer_out)
+                Arguments.of(transfer_out),
+                Arguments.of(credit_limit_change)
         );
     }
 

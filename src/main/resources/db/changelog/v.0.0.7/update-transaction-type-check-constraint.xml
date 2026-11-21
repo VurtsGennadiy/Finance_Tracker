@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="update-transaction-type-check-constraint" author="VurtsGD">
+        <comment>Добавление типа транзакции CREDIT_LIMIT_CHANGE для компенсационной операции при изменении кредитного лимита</comment>
+
+        <sql>
+            ALTER TABLE transactions DROP CONSTRAINT transaction_type_valid;
+            ALTER TABLE transactions ADD CONSTRAINT transaction_type_valid
+                CHECK (type IN ('INCOME', 'EXPENSE', 'TRANSFER_OUT', 'TRANSFER_IN', 'INITIAL', 'CREDIT_LIMIT_CHANGE'));
+        </sql>
+
+        <rollback>
+            <sql>
+                ALTER TABLE transactions DROP CONSTRAINT transaction_type_valid;
+                ALTER TABLE transactions ADD CONSTRAINT transaction_type_valid
+                    CHECK (type IN ('INCOME', 'EXPENSE', 'TRANSFER_OUT', 'TRANSFER_IN', 'INITIAL'));
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

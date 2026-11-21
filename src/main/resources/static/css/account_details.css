@@ -142,6 +142,17 @@
     color: #667eea;
 }
 
+.management-btn.credit-limit {
+    background: white;
+    border: 1px solid #c7d2fe;
+    color: #4338ca;
+}
+
+.management-btn.credit-limit:hover {
+    background: #eef2ff;
+    border-color: #4338ca;
+}
+
 .management-btn.delete {
     background: white;
     border: 1px solid #fecaca;

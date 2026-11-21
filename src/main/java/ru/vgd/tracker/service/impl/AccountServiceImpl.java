@@ -6,6 +6,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.vgd.tracker.dal.account.entity.Account;
+import ru.vgd.tracker.dal.account.entity.CreditCardAccount;
 import ru.vgd.tracker.dal.account.repository.AccountRepository;
 import ru.vgd.tracker.dal.user.User;
 import ru.vgd.tracker.exception.ItemNotFoundException;
@@ -15,6 +16,7 @@ import ru.vgd.tracker.service.dto.account.AccountDto;
 import ru.vgd.tracker.util.mapper.AccountMapper;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -102,5 +104,52 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.delete(account);
         log.info("Счёт удалён. id: {}", accountId);
+    }
+
+    /**
+     * Изменение кредитного лимита счёта кредитной карты.
+     * Доступно только для счетов типа CreditCardAccount.
+     * При изменении лимита баланс счёта меняется на величину разницы лимитов,
+     * а факт изменения фиксируется компенсационной транзакцией.
+     */
+    @Override
+    @Transactional
+    public void updateCreditLimit(UUID accountId, BigDecimal newLimit, User user) {
+        log.debug("Запрос на изменение кредитного лимита. accountId: {}, userId: {}, newLimit: {}",
+                accountId, user.getId(), newLimit);
+
+        if (newLimit == null || newLimit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Кредитный лимит не может быть отрицательным");
+        }
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ItemNotFoundException("Счёт не найден"));
+
+        if (!account.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Нет прав для доступа к этому счёту");
+        }
+
+        if (!(account instanceof CreditCardAccount creditCardAccount)) {
+            throw new IllegalArgumentException("Изменить кредитный лимит можно только для счёта кредитной карты");
+        }
+
+        BigDecimal normalizedLimit = newLimit.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal previousLimit = creditCardAccount.getCreditLimit() != null
+                ? creditCardAccount.getCreditLimit()
+                : BigDecimal.ZERO;
+        BigDecimal limitDelta = normalizedLimit.subtract(previousLimit);
+
+        if (limitDelta.compareTo(BigDecimal.ZERO) == 0) {
+            throw new IllegalArgumentException("Новый кредитный лимит совпадает с текущим");
+        }
+
+        creditCardAccount.setCreditLimit(normalizedLimit);
+        creditCardAccount.setBalance(creditCardAccount.getBalance().add(limitDelta));
+        accountRepository.save(creditCardAccount);
+
+        transactionService.createCreditLimitChangeTransaction(creditCardAccount, limitDelta, user);
+
+        log.info("Кредитный лимит изменён. accountId: {}, previousLimit: {}, newLimit: {}, balance: {}",
+                accountId, previousLimit, normalizedLimit, creditCardAccount.getBalance());
     }
 }

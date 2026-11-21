@@ -103,6 +103,13 @@
                                     <i class="bi bi-share"></i>
                                     Поделиться счётом
                                 </button>
+                                <button th:if="${account.accountType.name() == 'CREDIT_CARD'}"
+                                        class="management-btn credit-limit"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#creditLimitModal">
+                                    <i class="bi bi-sliders"></i>
+                                    Изменить кредитный лимит
+                                </button>
                                 <button class="management-btn delete" data-bs-toggle="modal" data-bs-target="#deleteModal">
                                     <i class="bi bi-trash"></i>
                                     Удалить счёт
@@ -150,6 +157,42 @@
                         <button type="submit" class="btn btn-danger">Удалить</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно изменения кредитного лимита -->
+    <div th:if="${account.accountType.name() == 'CREDIT_CARD'}"
+         class="modal fade" id="creditLimitModal" tabindex="-1" aria-labelledby="creditLimitModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="creditLimitModalLabel">Изменение кредитного лимита</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <form th:action="@{/accounts/{id}/credit-limit(id=${account.id})}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="creditLimitInput">Новый кредитный лимит</label>
+                            <input type="number" step="0.01" min="0" class="form-control"
+                                   id="creditLimitInput" name="creditLimit" required
+                                   th:value="${account.creditLimit}"
+                                   placeholder="0,00">
+                        </div>
+                        <p class="text-muted small mb-0">
+                            Текущий лимит:
+                            <strong th:if="${account.creditLimit != null}"
+                                    th:text="${#numbers.formatDecimal(account.creditLimit, 1, 'WHITESPACE', 2, 'COMMA')} + ' ₽'">0,00 ₽</strong>
+                            <strong th:unless="${account.creditLimit != null}">—</strong>.
+                            Баланс счёта изменится на величину разницы между новым и текущим лимитом,
+                            в истории операций появится компенсационная транзакция.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Изменить лимит</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
