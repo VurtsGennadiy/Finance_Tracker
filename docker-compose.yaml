@@ -20,9 +20,7 @@ services:
     restart: unless-stopped
 
   app:
-    # При деплое тег задаётся CI (APP_TAG=SHA коммита).
-    # latest — образ, собранный последним: удобно для ручного запуска на сервере.
-    image: walletcontrol:${APP_TAG:-latest}
+    image: walletcontrol:0.0.6
     container_name: wallet_app
     ports:
       - "8080:8080"

@@ -10,8 +10,6 @@ import ru.vgd.tracker.dal.user.User;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -26,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "owners")
+@ToString(exclude = "owner")
 public abstract class Account {
 
     @Id
@@ -43,14 +41,9 @@ public abstract class Account {
     @Builder.Default
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "account_owners",
-            joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    @Builder.Default
-    private Set<User> owners = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 
     @Column(name = "account_type", insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)

@@ -153,7 +153,7 @@ class TransactionServiceImplTest {
         Transaction transaction = transaction(account, TransactionType.INCOME, "500.00");
 
         when(transactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
-        when(accountRepository.isAccountOwnedBy(userId, account.getId())).thenReturn(false);
+        when(accountRepository.existsByOwnerIdAndId(userId, account.getId())).thenReturn(false);
 
         assertThrows(AccessDeniedException.class,
                 () -> transactionService.cancelTransaction(transaction.getId(), userId));
@@ -190,6 +190,6 @@ class TransactionServiceImplTest {
      */
     private void stubCancellableTransaction(Transaction transaction) {
         when(transactionRepository.findById(transaction.getId())).thenReturn(Optional.of(transaction));
-        when(accountRepository.isAccountOwnedBy(userId, transaction.getAccount().getId())).thenReturn(true);
+        when(accountRepository.existsByOwnerIdAndId(userId, transaction.getAccount().getId())).thenReturn(true);
     }
 }

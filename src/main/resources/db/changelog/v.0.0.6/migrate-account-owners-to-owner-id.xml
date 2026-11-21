@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="migrate-account-owners-to-owner-id" author="VurtsGD">
+        <preConditions onFail="HALT"
+                       onFailMessage="Невозможно перенести владельцев: найдены счета без владельца или с несколькими владельцами">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM accounts_base AS a
+                LEFT JOIN (
+                    SELECT account_id
+                    FROM account_owners
+                    GROUP BY account_id
+                    HAVING COUNT(*) = 1
+                ) AS single_owner ON single_owner.account_id = a.account_id
+                WHERE single_owner.account_id IS NULL
+            </sqlCheck>
+        </preConditions>
+
+        <comment>
+            Перенос единственного владельца счёта из таблицы account_owners в accounts_base.owner_id.
+            Миграция рассчитана на данные, где у каждого счёта ровно один владелец:
+            при наличии счёта без владельца или с несколькими владельцами changeset завершится ошибкой.
+        </comment>
+
+        <sql>
+            UPDATE accounts_base AS a
+            SET owner_id = ao.user_id
+            FROM account_owners AS ao
+            WHERE ao.account_id = a.account_id;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

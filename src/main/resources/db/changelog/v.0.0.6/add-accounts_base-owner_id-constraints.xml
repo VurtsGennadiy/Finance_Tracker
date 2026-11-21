@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="add-accounts_base-owner_id-constraints" author="VurtsGD">
+        <comment>
+            Закрепление единственного владельца счёта: обязательность поля owner_id
+            и внешний ключ на таблицу users. При удалении пользователя его счета удаляются.
+        </comment>
+
+        <addNotNullConstraint tableName="accounts_base" columnName="owner_id"/>
+
+        <addForeignKeyConstraint baseTableName="accounts_base"
+                                 baseColumnNames="owner_id"
+                                 constraintName="fk_accounts_base_users"
+                                 referencedTableName="users"
+                                 referencedColumnNames="user_id"
+                                 onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

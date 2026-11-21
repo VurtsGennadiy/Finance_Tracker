@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction> {
 
-    List<Transaction> findByAccountOwnersId(UUID accountId, Limit limit, Sort sort);
+    List<Transaction> findByAccountOwnerId(UUID ownerId, Limit limit, Sort sort);
 
     List<Transaction> findByAccountId(UUID accountId, Limit limit, Sort sort);
 

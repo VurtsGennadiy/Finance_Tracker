@@ -65,7 +65,6 @@ public class Transaction {
 
     /**
      * Пользователь, создавший транзакцию.
-     * Поскольку у одного счёта может быть несколько владельцев, то недостаточно только ссылки на счёт.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)

@@ -17,8 +17,10 @@ import ru.vgd.tracker.dal.user.UserRepository;
 import ru.vgd.tracker.dal.user.UserRole;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +54,7 @@ public class AccountRepositoryIT {
         String name = "cash_account";
 
         CashAccount account = CashAccount.builder()
-                .owners(Set.of(user))
+                .owner(user)
                 .balance(balance)
                 .name(name)
                 .build();
@@ -67,7 +69,7 @@ public class AccountRepositoryIT {
 
         assertEquals(0, balance.compareTo(cashAccount.getBalance()));
         assertEquals(name, cashAccount.getName());
-        assertEquals(Set.of(user), cashAccount.getOwners());
+        assertEquals(user, cashAccount.getOwner());
         assertNotNull(loaded.getCreatedAt());
         assertNotNull(loaded.getUpdatedAt());
     }
@@ -81,7 +83,7 @@ public class AccountRepositoryIT {
         String accountNumber = "000 123 456";
 
         BankAccount account = BankAccount.builder()
-                .owners(Set.of(user))
+                .owner(user)
                 .balance(balance)
                 .name(name)
                 .bankName(bankName)
@@ -96,7 +98,7 @@ public class AccountRepositoryIT {
         assertEquals(AccountType.BANK, loaded.getAccountType());
         BankAccount bankAccount = (BankAccount) loaded;
 
-        assertEquals(Set.of(user), bankAccount.getOwners());
+        assertEquals(user, bankAccount.getOwner());
         assertEquals(0, balance.compareTo(loaded.getBalance()));
         assertEquals(name, bankAccount.getName());
         assertEquals(bankName, bankAccount.getBankName());
@@ -114,7 +116,7 @@ public class AccountRepositoryIT {
         String cardNumber = "1836";
 
         DebitCardAccount account = DebitCardAccount.builder()
-                .owners(Set.of(user))
+                .owner(user)
                 .balance(balance)
                 .name(name)
                 .bankName(bankName)
@@ -129,7 +131,7 @@ public class AccountRepositoryIT {
         assertEquals(AccountType.DEBIT_CARD, loaded.getAccountType());
         DebitCardAccount debitCardAccount = (DebitCardAccount) loaded;
 
-        assertEquals(Set.of(user), debitCardAccount.getOwners());
+        assertEquals(user, debitCardAccount.getOwner());
         assertEquals(0, balance.compareTo(debitCardAccount.getBalance()));
         assertEquals(name, debitCardAccount.getName());
         assertEquals(bankName, debitCardAccount.getBankName());
@@ -148,7 +150,7 @@ public class AccountRepositoryIT {
         BigDecimal creditLimit = new BigDecimal("100000");
 
         CreditCardAccount account = CreditCardAccount.builder()
-                .owners(Set.of(user))
+                .owner(user)
                 .balance(balance)
                 .name(name)
                 .bankName(bankName)
@@ -163,7 +165,7 @@ public class AccountRepositoryIT {
         assertEquals(AccountType.CREDIT_CARD, loaded.getAccountType());
         CreditCardAccount creditCardAccount = (CreditCardAccount) loaded;
 
-        assertEquals(Set.of(user), creditCardAccount.getOwners());
+        assertEquals(user, creditCardAccount.getOwner());
         assertEquals(0, balance.compareTo(creditCardAccount.getBalance()));
         assertEquals(name, creditCardAccount.getName());
         assertEquals(bankName, creditCardAccount.getBankName());
@@ -180,7 +182,7 @@ public class AccountRepositoryIT {
         String name = "loan_card";
 
         LoanAccount account = LoanAccount.builder()
-                .owners(Set.of(user))
+                .owner(user)
                 .balance(balance)
                 .name(name)
                 .build();
@@ -193,10 +195,33 @@ public class AccountRepositoryIT {
         assertEquals(AccountType.LOAN, loaded.getAccountType());
         LoanAccount loanAccount = (LoanAccount) loaded;
 
-        assertEquals(Set.of(user), loanAccount.getOwners());
+        assertEquals(user, loanAccount.getOwner());
         assertEquals(0, balance.compareTo(loanAccount.getBalance()));
         assertEquals(name, loanAccount.getName());
         assertNotNull(loaded.getCreatedAt());
         assertNotNull(loaded.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("Поиск счетов по владельцу и проверка принадлежности счёта")
+    void findAccountsByOwner() {
+        String name = "owner_account";
+
+        CashAccount account = CashAccount.builder()
+                .owner(user)
+                .balance(new BigDecimal("1000"))
+                .name(name)
+                .build();
+        Account saved = accountRepository.saveAndFlush(account);
+        entityManager.clear();
+
+        List<UUID> accountIds = accountRepository.findAllByOwnerId(user.getId()).stream()
+                .map(Account::getId)
+                .toList();
+
+        assertEquals(List.of(saved.getId()), accountIds);
+        assertTrue(accountRepository.existsByOwnerIdAndName(user.getId(), name));
+        assertTrue(accountRepository.existsByOwnerIdAndId(user.getId(), saved.getId()));
+        assertFalse(accountRepository.existsByOwnerIdAndId(UUID.randomUUID(), saved.getId()));
     }
 }

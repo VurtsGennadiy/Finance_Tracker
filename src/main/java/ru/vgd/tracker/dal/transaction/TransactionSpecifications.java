@@ -18,8 +18,8 @@ public final class TransactionSpecifications {
     public static Specification<Transaction> accountOwnerId(UUID ownerId) {
         return (root, query, criteriaBuilder) -> {
             Join<Transaction, Account> accountJoin = root.join("account", JoinType.INNER);
-            Join<Account, User> userJoin = accountJoin.join("owners", JoinType.INNER);
-            return criteriaBuilder.equal(userJoin.get("id"), ownerId);
+            Join<Account, User> ownerJoin = accountJoin.join("owner", JoinType.INNER);
+            return criteriaBuilder.equal(ownerJoin.get("id"), ownerId);
         };
     }
 

@@ -134,7 +134,7 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionDto> getUserLastTransactions(UUID userId) {
         final int limit = 5;
         log.debug("Запрос на получение {} последних транзакций для пользователя. userId: {}", limit, userId);
-        List<Transaction> transactions = transactionRepository.findByAccountOwnersId(
+        List<Transaction> transactions = transactionRepository.findByAccountOwnerId(
                 userId, Limit.of(limit), TransactionSort.DEFAULT.getSortValue());
         return transactionMapper.toDto(transactions);
     }
@@ -164,7 +164,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new ItemNotFoundException("Транзакция не найдена"));
 
         UUID accountId = transaction.getAccount().getId();
-        if (!accountRepository.isAccountOwnedBy(userId, accountId)) {
+        if (!accountRepository.existsByOwnerIdAndId(userId, accountId)) {
             throw new AccessDeniedException("Нет прав для отмены этой операции");
         }
 
@@ -240,25 +240,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     /**
      * Сохранение начальной транзакции пополнения счёта при создании счёта.
-     * @param account только созданный счёт. У счёта должен быть только один владелец и не должно существовать транзакций по счёту.
-     * @throws IllegalStateException в случае, если у счёта не один владелец или уже существуют транзакции по счёту.
+     * @param account только созданный счёт. У счёта должен быть владелец и не должно существовать транзакций по счёту.
+     * @throws IllegalStateException в случае, если у счёта нет владельца или уже существуют транзакции по счёту.
      */
     @Override
     @Transactional
     public void createAccountInitialTransaction(Account account) {
         log.debug("Создание начальной транзакции для счёта accountId: {}", account.getId());
 
-        if (account.getOwners().size() != 1) {
-            throw new IllegalStateException("Невозможно создать начальную транзакцию для счёта accountId: "
-                    + account.getId() + " . Причина: у счёта должен быть единственный владелец.");
-        }
-
+        User initiator = account.getOwner();
         if (transactionRepository.countByAccountId(account.getId()) > 0) {
             throw new IllegalStateException("Невозможно создать начальную транзакцию для счёта accountId: "
                     + account.getId() + " . Причина: счёт уже имеет транзакции.");
         }
 
-        User initiator = account.getOwners().stream().findFirst().orElseThrow();
         Transaction transaction = new Transaction();
         transaction.setCreatedBy(initiator);
         transaction.setAccount(account);
@@ -287,7 +282,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private Account getAccountAndCheckOwner(UUID accountId, User user) {
         RuntimeException e = new ItemNotFoundException("Счёт не найден");
-        if (accountRepository.isAccountOwnedBy(user.getId(), accountId)) {
+        if (accountRepository.existsByOwnerIdAndId(user.getId(), accountId)) {
             return accountRepository.findById(accountId).orElseThrow(() -> e);
         } else {
             throw e;

@@ -49,7 +49,7 @@ public class User {
     private Set<UserRole> roles = EnumSet.of(UserRole.USER);
 
     @Builder.Default
-    @ManyToMany(mappedBy = "owners", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private Set<Account> accounts = new HashSet<>();
 
     @Builder.Default

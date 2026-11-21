@@ -59,14 +59,14 @@ public class DataSeeder implements ApplicationRunner {
         CashAccount cash = new CashAccount();
         cash.setName("Наличные");
         cash.setBalance(new BigDecimal("5000.00"));
-        cash.setOwners(Set.of(user));
+        cash.setOwner(user);
 
         DebitCardAccount debit = new DebitCardAccount();
         debit.setName("Зарплатная карта");
         debit.setBankName("Т-Банк");
         debit.setCardNumber("1234567890");
         debit.setBalance(new BigDecimal("42000.50"));
-        debit.setOwners(Set.of(user));
+        debit.setOwner(user);
 
         CreditCardAccount credit = new CreditCardAccount();
         credit.setName("Кредитка");
@@ -74,14 +74,14 @@ public class DataSeeder implements ApplicationRunner {
         credit.setCardNumber("0987654321");
         credit.setCreditLimit(new BigDecimal("150000.00"));
         credit.setBalance(new BigDecimal("-12500.00"));
-        credit.setOwners(Set.of(user));
+        credit.setOwner(user);
 
         BankAccount bank = new BankAccount();
         bank.setName("Накопительный счёт");
         bank.setBankName("ВТБ");
         bank.setAccountNumber("1111222233334444");
         bank.setBalance(new BigDecimal("250000.00"));
-        bank.setOwners(Set.of(user));
+        bank.setOwner(user);
 
         Set<Account> accounts = Set.of(cash, debit, credit, bank);
         accountRepository.saveAll(accounts);

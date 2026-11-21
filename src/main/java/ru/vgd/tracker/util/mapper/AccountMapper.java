@@ -7,7 +7,6 @@ import ru.vgd.tracker.service.dto.account.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -18,27 +17,27 @@ public interface AccountMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    BankAccount toBankAccount(AccountCreateRequest request, Set<User> owners);
+    BankAccount toBankAccount(AccountCreateRequest request, User owner);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    CashAccount toCashAccount(AccountCreateRequest request, Set<User> owners);
+    CashAccount toCashAccount(AccountCreateRequest request, User owner);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    CreditCardAccount toCreditCardAccount(AccountCreateRequest request, Set<User> owners);
+    CreditCardAccount toCreditCardAccount(AccountCreateRequest request, User owner);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    DebitCardAccount toDebitCardAccount(AccountCreateRequest request, Set<User> owners);
+    DebitCardAccount toDebitCardAccount(AccountCreateRequest request, User owner);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    LoanAccount toLoanAccount(AccountCreateRequest request, Set<User> owners);
+    LoanAccount toLoanAccount(AccountCreateRequest request, User owner);
 
     @SubclassMapping(source = BankAccount.class, target = BankAccountDto.class)
     @SubclassMapping(source = CashAccount.class, target = CashAccountDto.class)
